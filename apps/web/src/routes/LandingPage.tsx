@@ -1,9 +1,7 @@
 import { HeartHandshake, MapPin, Shirt, ShoppingBag, Sparkles, WandSparkles } from 'lucide-react';
-import { useState } from 'react';
 import { Link } from 'react-router';
-import { SignInDialog } from '@/components/SignInDialog';
+import { SiteHeader } from '@/components/SiteHeader';
 import { Button } from '@/components/ui/button';
-import { useSession } from '@/lib/session';
 
 const STEPS = [
   {
@@ -42,23 +40,9 @@ const FEATURES = [
 ];
 
 export function LandingPage() {
-  const signedIn = useSession((s) => Boolean(s.session));
-  const [signInOpen, setSignInOpen] = useState(false);
-
   return (
     <div className="min-h-dvh">
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-5">
-        <span className="text-lg font-semibold tracking-tight">DaFitMatch</span>
-        {signedIn ? (
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/app/feed">Open app</Link>
-          </Button>
-        ) : (
-          <Button variant="ghost" size="sm" onClick={() => setSignInOpen(true)}>
-            Sign in
-          </Button>
-        )}
-      </header>
+      <SiteHeader revealOnScroll />
 
       <main>
         <section className="mx-auto grid max-w-3xl gap-6 px-4 pt-12 pb-16 text-center sm:pt-20">
@@ -134,8 +118,6 @@ export function LandingPage() {
       <footer className="border-t py-6 text-center text-xs text-muted-foreground">
         Brands mentioned are style inspiration only and are not affiliated with DaFitMatch.
       </footer>
-
-      <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />
     </div>
   );
 }
