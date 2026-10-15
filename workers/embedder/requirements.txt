@@ -1,0 +1,11 @@
+# Runtime deps for the batch embedder (run on a laptop or a free Colab/Kaggle GPU).
+# Python 3.12. Install: pip install -r requirements.txt
+torch==2.14.1
+open_clip_torch==3.3.0
+transformers==5.18.0
+pillow==12.3.0
+numpy==2.5.3
+supabase==2.31.0
+httpx==0.28.1
+python-dotenv==1.2.3
+tqdm==4.70.1
