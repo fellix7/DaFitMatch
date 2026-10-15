@@ -9,9 +9,15 @@ import {
 import pg from 'pg';
 import type { Env } from './env';
 import { errorBody, HttpError } from './lib/errors';
-import { createUserClient, type UserClientFactory } from './lib/supabase';
+import {
+  createAnonClient,
+  createUserClient,
+  type UserClientFactory,
+  type UserSupabaseClient,
+} from './lib/supabase';
 import { authPlugin, createTokenVerifier, type TokenVerifier } from './plugins/auth';
 import { securityPlugin } from './plugins/security';
+import { archetypeRoutes } from './routes/archetypes';
 import { healthRoutes, type DbCheck } from './routes/health';
 import { meRoutes } from './routes/me';
 import { outfitRoutes } from './routes/outfits';
@@ -25,6 +31,8 @@ import { wardrobeRoutes } from './routes/wardrobe';
 export interface AppDeps {
   verifyToken?: TokenVerifier;
   createUserClient?: UserClientFactory;
+  /** Client for public (signed-out) catalog reads. */
+  anonClient?: () => UserSupabaseClient;
   checkDb?: DbCheck;
 }
 
@@ -89,6 +97,10 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
 
   // Public
   await app.register(healthRoutes, { checkDb });
+  let anon: UserSupabaseClient | undefined;
+  await app.register(archetypeRoutes, {
+    anonClient: deps.anonClient ?? (() => (anon ??= createAnonClient(env))),
+  });
 
   // Protected: every route in this scope requires a valid Supabase JWT.
   await app.register(async (scope) => {

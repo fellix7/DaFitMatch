@@ -5,6 +5,7 @@ import { Id, Inr } from './common';
 import { Outfit } from './outfit';
 import { ConfirmAgeRequest, ConfirmAgeResponse, Profile } from './profile';
 import { DateRoom, InviteCode, RoomMember, RoomPair } from './room';
+import { StyleQuizAnswers } from './quiz';
 import { TasteProfile } from './taste';
 import { TryOn } from './interaction';
 import { CreateWardrobeItemRequest, UpdateWardrobeItemRequest, WardrobeItem } from './wardrobe';
@@ -133,7 +134,7 @@ export type WardrobeItemResponse = z.infer<typeof WardrobeItemResponse>;
 export const ListArchetypesResponse = z.object({ archetypes: z.array(Archetype) });
 export type ListArchetypesResponse = z.infer<typeof ListArchetypesResponse>;
 
-type Method = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 interface EndpointDef {
   method: Method;
   path: string;
@@ -148,6 +149,19 @@ interface EndpointDef {
 export const endpoints = {
   health: { method: 'GET', path: '/health', auth: false, response: HealthResponse },
   me: { method: 'GET', path: '/me', auth: true, response: MeResponse },
+  saveTaste: {
+    method: 'PUT',
+    path: '/me/taste',
+    auth: true,
+    body: StyleQuizAnswers,
+    response: MeResponse,
+  },
+  listArchetypes: {
+    method: 'GET',
+    path: '/archetypes',
+    auth: false,
+    response: ListArchetypesResponse,
+  },
   confirmAge: {
     method: 'POST',
     path: '/me/age',

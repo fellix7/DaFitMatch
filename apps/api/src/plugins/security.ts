@@ -15,7 +15,7 @@ export const securityPlugin = fp<{ env: Env }>(
     const origins = allowedOrigins(env);
     await app.register(cors, {
       origin: (origin, cb) => cb(null, !origin || origins.includes(origin)),
-      methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
       allowedHeaders: ['Authorization', 'Content-Type'],
       maxAge: 600,
     });

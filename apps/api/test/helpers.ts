@@ -43,35 +43,59 @@ export const profileRow = {
   updated_at: '2026-10-15T10:00:00.123456+00:00',
 };
 
-type Rows = Record<string, Record<string, unknown> | null>;
+type Rows = Record<string, unknown>;
 type RpcResult = { data: unknown; error: { code: string; message: string } | null };
+export type Write = { table: string; op: 'update' | 'upsert'; values: unknown; filters: unknown[] };
 
 /**
- * Minimal stand-in for a user-scoped supabase-js client: `.from(t).select().eq().maybeSingle()`.
- * Records which access tokens it was created with so tests can assert user scoping.
+ * Minimal stand-in for a supabase-js client. rows[table] answers .maybeSingle();
+ * lists[table] answers an awaited .select() list. Records tokens, writes and RPC calls so
+ * tests can assert user scoping and exactly what would be persisted.
  */
-export function fakeUserClients(rows: Rows, rpc: Record<string, RpcResult> = {}) {
+export function fakeUserClients(
+  rows: Rows,
+  rpc: Record<string, RpcResult> = {},
+  lists: Record<string, unknown[]> = {},
+) {
   const tokens: string[] = [];
   const rpcCalls: { fn: string; args: unknown }[] = [];
-  const factory = (token: string) => {
-    tokens.push(token);
-    const query = (table: string) => {
+  const writes: Write[] = [];
+
+  const makeClient = () => {
+    const from = (table: string) => {
+      const filters: unknown[] = [];
+      let write: Write | null = null;
       const chain = {
         select: () => chain,
-        eq: () => chain,
+        order: () => chain,
+        eq: (col: string, val: unknown) => (filters.push([col, '=', val]), chain),
+        in: (col: string, val: unknown) => (filters.push([col, 'in', val]), chain),
+        update: (values: unknown) => ((write = { table, op: 'update', values, filters }), chain),
+        upsert: (values: unknown) => ((write = { table, op: 'upsert', values, filters }), chain),
         maybeSingle: async () => ({ data: rows[table] ?? null, error: null }),
+        then: (resolve: (v: unknown) => unknown) => {
+          if (write) writes.push(write);
+          return Promise.resolve(
+            resolve({ data: write ? null : (lists[table] ?? []), error: null }),
+          );
+        },
       };
       return chain;
     };
     return {
-      from: query,
+      from,
       rpc: async (fn: string, args: unknown) => {
         rpcCalls.push({ fn, args });
         return rpc[fn] ?? { data: null, error: { code: '42883', message: 'no such fn' } };
       },
     } as unknown as UserSupabaseClient;
   };
-  return { factory, tokens, rpcCalls };
+
+  const factory = (token: string) => {
+    tokens.push(token);
+    return makeClient();
+  };
+  return { factory, anon: makeClient, tokens, rpcCalls, writes };
 }
 
 export async function makeApp(deps: AppDeps = {}): Promise<FastifyInstance> {

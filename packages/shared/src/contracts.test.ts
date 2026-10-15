@@ -15,6 +15,8 @@ import {
   CreateWardrobeItemRequest,
   UpdateWardrobeItemRequest,
   WardrobeImagePath,
+  StyleQuizAnswers,
+  archetypeWeightsFromPicks,
   endpoints,
 } from './index';
 
@@ -135,5 +137,39 @@ describe('wardrobe', () => {
   it('wardrobe image path is a single file under a user id folder', () => {
     expect(WardrobeImagePath.safeParse(`${uid}/shirt.jpg`).success).toBe(true);
     expect(WardrobeImagePath.safeParse(`${uid}/a/b.jpg`).success).toBe(false);
+  });
+});
+
+describe('style quiz', () => {
+  const answers = {
+    gender_presentation: 'feminine',
+    shop_gender: 'women',
+    occasion: 'rooftop',
+    budget_inr: 6000,
+    archetypes: ['soft-romantic', 'minimal'],
+    colors_like: ['Ivory'],
+    colors_avoid: [],
+    never_wear: ['crop tops'],
+    comfort_vs_statement: 3,
+    fit_prefs: { bottom: 'wide' },
+    wardrobe_mode: 'mix',
+  };
+
+  it('accepts a complete guest answer set', () => {
+    expect(StyleQuizAnswers.parse(answers).colors_like).toEqual(['ivory']);
+  });
+
+  it('requires 1–3 archetypes', () => {
+    expect(StyleQuizAnswers.safeParse({ ...answers, archetypes: [] }).success).toBe(false);
+    expect(
+      StyleQuizAnswers.safeParse({ ...answers, archetypes: ['a', 'b', 'c', 'd'] }).success,
+    ).toBe(false);
+  });
+
+  it('weights archetype picks by order and normalises them', () => {
+    expect(archetypeWeightsFromPicks(['a'])).toEqual({ a: 1 });
+    expect(archetypeWeightsFromPicks(['a', 'b'])).toEqual({ a: 0.667, b: 0.333 });
+    const w = archetypeWeightsFromPicks(['a', 'b', 'c']);
+    expect(w.a! > w.b! && w.b! > w.c!).toBe(true);
   });
 });

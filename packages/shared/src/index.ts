@@ -3,6 +3,7 @@ export * from './constants';
 export * from './schemas/common';
 export * from './schemas/profile';
 export * from './schemas/taste';
+export * from './schemas/quiz';
 export * from './schemas/catalog';
 export * from './schemas/outfit';
 export * from './schemas/wardrobe';

@@ -16,3 +16,13 @@ export function createUserClient(env: Env, accessToken: string): UserSupabaseCli
 }
 
 export type UserClientFactory = (accessToken: string) => UserSupabaseClient;
+
+/**
+ * Anonymous client (publishable key, no user token) for PUBLIC catalog reads on routes that do
+ * not require sign-in, e.g. GET /archetypes for the guest style builder. RLS still applies.
+ */
+export function createAnonClient(env: Env): UserSupabaseClient {
+  return createClient<Database>(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+}
