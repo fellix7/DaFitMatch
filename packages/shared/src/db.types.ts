@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
   public: {
     Tables: {
       app_settings: {
@@ -30,7 +35,7 @@ export type Database = {
       archetypes: {
         Row: {
           benchmark_brands: string[]
-          centroid: string | null
+          centroid: unknown
           created_at: string
           description: string
           id: string
@@ -40,7 +45,7 @@ export type Database = {
         }
         Insert: {
           benchmark_brands?: string[]
-          centroid?: string | null
+          centroid?: unknown
           created_at?: string
           description?: string
           id?: string
@@ -50,7 +55,7 @@ export type Database = {
         }
         Update: {
           benchmark_brands?: string[]
-          centroid?: string | null
+          centroid?: unknown
           created_at?: string
           description?: string
           id?: string
@@ -216,7 +221,7 @@ export type Database = {
           category: string
           colors: string[]
           created_at: string
-          embedding: string | null
+          embedding: unknown
           external_id: string
           formality: number
           gender: Database["public"]["Enums"]["product_gender"]
@@ -238,7 +243,7 @@ export type Database = {
           category: string
           colors?: string[]
           created_at?: string
-          embedding?: string | null
+          embedding?: unknown
           external_id: string
           formality: number
           gender: Database["public"]["Enums"]["product_gender"]
@@ -260,7 +265,7 @@ export type Database = {
           category?: string
           colors?: string[]
           created_at?: string
-          embedding?: string | null
+          embedding?: unknown
           external_id?: string
           formality?: number
           gender?: Database["public"]["Enums"]["product_gender"]
@@ -285,7 +290,9 @@ export type Database = {
           created_at: string
           default_budget_inr: number | null
           display_name: string | null
-          gender_presentation: Database["public"]["Enums"]["gender_presentation"] | null
+          gender_presentation:
+            | Database["public"]["Enums"]["gender_presentation"]
+            | null
           height_cm: number | null
           id: string
           is_adult: boolean
@@ -297,7 +304,9 @@ export type Database = {
           created_at?: string
           default_budget_inr?: number | null
           display_name?: string | null
-          gender_presentation?: Database["public"]["Enums"]["gender_presentation"] | null
+          gender_presentation?:
+            | Database["public"]["Enums"]["gender_presentation"]
+            | null
           height_cm?: number | null
           id: string
           is_adult?: boolean
@@ -309,7 +318,9 @@ export type Database = {
           created_at?: string
           default_budget_inr?: number | null
           display_name?: string | null
-          gender_presentation?: Database["public"]["Enums"]["gender_presentation"] | null
+          gender_presentation?:
+            | Database["public"]["Enums"]["gender_presentation"]
+            | null
           height_cm?: number | null
           id?: string
           is_adult?: boolean
@@ -321,7 +332,7 @@ export type Database = {
         Row: {
           archetype_id: string
           created_at: string
-          embedding: string | null
+          embedding: unknown
           gender: Database["public"]["Enums"]["product_gender"]
           id: string
           source_brand: string
@@ -330,7 +341,7 @@ export type Database = {
         Insert: {
           archetype_id: string
           created_at?: string
-          embedding?: string | null
+          embedding?: unknown
           gender: Database["public"]["Enums"]["product_gender"]
           id?: string
           source_brand: string
@@ -339,7 +350,7 @@ export type Database = {
         Update: {
           archetype_id?: string
           created_at?: string
-          embedding?: string | null
+          embedding?: unknown
           gender?: Database["public"]["Enums"]["product_gender"]
           id?: string
           source_brand?: string
@@ -428,7 +439,7 @@ export type Database = {
           fit_prefs: Json
           interaction_count: number
           never_wear: string[]
-          taste_vector: string | null
+          taste_vector: unknown
           updated_at: string
           user_id: string
           version: number
@@ -441,7 +452,7 @@ export type Database = {
           fit_prefs?: Json
           interaction_count?: number
           never_wear?: string[]
-          taste_vector?: string | null
+          taste_vector?: unknown
           updated_at?: string
           user_id: string
           version?: number
@@ -454,7 +465,7 @@ export type Database = {
           fit_prefs?: Json
           interaction_count?: number
           never_wear?: string[]
-          taste_vector?: string | null
+          taste_vector?: unknown
           updated_at?: string
           user_id?: string
           version?: number
@@ -580,7 +591,7 @@ export type Database = {
           place_id: string
           price_level: number | null
           refreshed_at: string | null
-          vibe_embedding: string | null
+          vibe_embedding: unknown
           vibe_tags: string[]
         }
         Insert: {
@@ -597,7 +608,7 @@ export type Database = {
           place_id: string
           price_level?: number | null
           refreshed_at?: string | null
-          vibe_embedding?: string | null
+          vibe_embedding?: unknown
           vibe_tags?: string[]
         }
         Update: {
@@ -614,7 +625,7 @@ export type Database = {
           place_id?: string
           price_level?: number | null
           refreshed_at?: string | null
-          vibe_embedding?: string | null
+          vibe_embedding?: unknown
           vibe_tags?: string[]
         }
         Relationships: []
@@ -624,7 +635,7 @@ export type Database = {
           category: string
           colors: string[]
           created_at: string
-          embedding: string | null
+          embedding: unknown
           formality: number | null
           id: string
           image_path: string | null
@@ -640,7 +651,7 @@ export type Database = {
           category: string
           colors?: string[]
           created_at?: string
-          embedding?: string | null
+          embedding?: unknown
           formality?: number | null
           id?: string
           image_path?: string | null
@@ -656,7 +667,7 @@ export type Database = {
           category?: string
           colors?: string[]
           created_at?: string
-          embedding?: string | null
+          embedding?: unknown
           formality?: number | null
           id?: string
           image_path?: string | null
@@ -683,33 +694,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      confirm_age: {
-        Args: {
-          birth_date: string
-        }
-        Returns: boolean
-      }
-      consume_tryon_quota: {
-        Args: never
-        Returns: number
-      }
+      confirm_age: { Args: { birth_date: string }; Returns: boolean }
+      consume_tryon_quota: { Args: never; Returns: number }
       join_room: {
-        Args: {
-          p_budget_inr?: number
-          p_invite_code: string
-        }
+        Args: { p_budget_inr?: number; p_invite_code: string }
         Returns: string
       }
-      leave_room: {
-        Args: {
-          p_room_id: string
-        }
-        Returns: undefined
-      }
+      leave_room: { Args: { p_room_id: string }; Returns: undefined }
       lock_room_pair: {
-        Args: {
-          p_pair_id: string
-        }
+        Args: { p_pair_id: string }
         Returns: {
           created_at: string
           id: string
@@ -723,6 +716,12 @@ export type Database = {
           vote_a: Database["public"]["Enums"]["vote"] | null
           vote_b: Database["public"]["Enums"]["vote"] | null
         }
+        SetofOptions: {
+          from: "*"
+          to: "room_pairs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       match_products: {
         Args: {
@@ -730,7 +729,7 @@ export type Database = {
           max_price?: number
           p_gender: Database["public"]["Enums"]["product_gender"]
           p_slot: Database["public"]["Enums"]["slot"]
-          query_vec: string
+          query_vec: unknown
         }
         Returns: {
           affiliate_url: string
@@ -756,7 +755,7 @@ export type Database = {
         Args: {
           k?: number
           p_slot: Database["public"]["Enums"]["slot"]
-          query_vec: string
+          query_vec: unknown
         }
         Returns: {
           category: string
@@ -768,9 +767,7 @@ export type Database = {
         }[]
       }
       room_members: {
-        Args: {
-          p_room_id: string
-        }
+        Args: { p_room_id: string }
         Returns: {
           display_name: string
           seat: string
@@ -778,10 +775,7 @@ export type Database = {
         }[]
       }
       vote_room_pair: {
-        Args: {
-          p_pair_id: string
-          p_vote: Database["public"]["Enums"]["vote"]
-        }
+        Args: { p_pair_id: string; p_vote: Database["public"]["Enums"]["vote"] }
         Returns: {
           created_at: string
           id: string
@@ -795,17 +789,17 @@ export type Database = {
           vote_a: Database["public"]["Enums"]["vote"] | null
           vote_b: Database["public"]["Enums"]["vote"] | null
         }
+        SetofOptions: {
+          from: "*"
+          to: "room_pairs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
-      coordination_mode:
-        | "matching"
-        | "complementary"
-        | "one_leads"
-      gender_presentation:
-        | "masculine"
-        | "feminine"
-        | "androgynous"
+      coordination_mode: "matching" | "complementary" | "one_leads"
+      gender_presentation: "masculine" | "feminine" | "androgynous"
       interaction_action:
         | "like"
         | "skip"
@@ -828,33 +822,11 @@ export type Database = {
         | "rooftop"
         | "movie"
         | "festive"
-      product_gender:
-        | "men"
-        | "women"
-        | "unisex"
-      product_source:
-        | "myntra"
-        | "ajio"
-        | "flipkart"
-        | "amazon"
-        | "other"
-      room_status:
-        | "open"
-        | "active"
-        | "locked"
-        | "closed"
-      slot:
-        | "top"
-        | "bottom"
-        | "footwear"
-        | "layer"
-        | "accessory"
-        | "full"
-      tryon_status:
-        | "queued"
-        | "running"
-        | "succeeded"
-        | "failed"
+      product_gender: "men" | "women" | "unisex"
+      product_source: "myntra" | "ajio" | "flipkart" | "amazon" | "other"
+      room_status: "open" | "active" | "locked" | "closed"
+      slot: "top" | "bottom" | "footwear" | "layer" | "accessory" | "full"
+      tryon_status: "queued" | "running" | "succeeded" | "failed"
       vote: "up" | "down"
     }
     CompositeTypes: {
@@ -863,21 +835,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -895,14 +871,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -918,14 +896,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -941,14 +921,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -956,14 +938,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
@@ -973,8 +957,23 @@ export const Constants = {
     Enums: {
       coordination_mode: ["matching", "complementary", "one_leads"],
       gender_presentation: ["masculine", "feminine", "androgynous"],
-      interaction_action: ["like", "skip", "love", "save", "click", "tryon", "swap"],
-      interaction_target: ["product", "outfit", "room_pair", "venue", "archetype", "wardrobe_item"],
+      interaction_action: [
+        "like",
+        "skip",
+        "love",
+        "save",
+        "click",
+        "tryon",
+        "swap",
+      ],
+      interaction_target: [
+        "product",
+        "outfit",
+        "room_pair",
+        "venue",
+        "archetype",
+        "wardrobe_item",
+      ],
       occasion: ["brunch", "dinner", "gallery", "rooftop", "movie", "festive"],
       product_gender: ["men", "women", "unisex"],
       product_source: ["myntra", "ajio", "flipkart", "amazon", "other"],
