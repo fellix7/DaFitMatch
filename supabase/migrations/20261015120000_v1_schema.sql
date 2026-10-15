@@ -731,7 +731,7 @@ declare
   r public.date_rooms;
 begin
   select * into r from public.date_rooms where id = p_room_id for update;
-  if not found or uid is null or uid not in (r.user_a, r.user_b) then
+  if not found or not coalesce(uid in (r.user_a, r.user_b), false) then
     raise exception 'not a member of this room' using errcode = '42501';
   end if;
 
@@ -787,7 +787,7 @@ begin
   select dr.* into r
   from public.room_pairs rp join public.date_rooms dr on dr.id = rp.room_id
   where rp.id = p_pair_id;
-  if not found or uid is null or uid not in (r.user_a, r.user_b) then
+  if not found or not coalesce(uid in (r.user_a, r.user_b), false) then
     raise exception 'not a member of this room' using errcode = '42501';
   end if;
   if r.status = 'closed' then
@@ -820,7 +820,7 @@ begin
     raise exception 'pair not found' using errcode = 'P0002';
   end if;
   select * into r from public.date_rooms where id = rp.room_id for update;
-  if uid is null or uid not in (r.user_a, r.user_b) then
+  if not coalesce(uid in (r.user_a, r.user_b), false) then
     raise exception 'not a member of this room' using errcode = '42501';
   end if;
   if r.user_a is null or r.user_b is null then
