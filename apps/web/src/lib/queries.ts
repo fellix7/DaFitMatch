@@ -1,0 +1,36 @@
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { api, ApiClientError } from './api';
+import { useSession } from './session';
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      // Do not hammer the API on auth/validation failures.
+      retry: (count, err) =>
+        !(err instanceof ApiClientError && err.status >= 400 && err.status < 500) && count < 2,
+    },
+  },
+});
+
+export const queryKeys = {
+  me: (userId: string | undefined) => ['me', userId] as const,
+};
+
+/** The caller's profile + taste profile from GET /me (enabled only when signed in). */
+export function useMe() {
+  const userId = useSession((s) => s.session?.user.id);
+  return useQuery({
+    queryKey: queryKeys.me(userId),
+    queryFn: ({ signal }) => api('me', {}, { signal }),
+    enabled: Boolean(userId),
+  });
+}
+
+export function useConfirmAge() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (birth_date: string) => api('confirmAge', { body: { birth_date } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['me'] }),
+  });
+}
