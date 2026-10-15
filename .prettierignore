@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+dist
+coverage
+.turbo
+packages/shared/src/db.types.ts
+supabase/.temp
+*.md
