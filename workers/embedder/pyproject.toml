@@ -1,0 +1,19 @@
+[project]
+name = "dafitmatch-embedder"
+version = "0.0.0"
+description = "Offline batch embedding + tagging for DaFitMatch (Marqo-FashionSigLIP, 768-dim)."
+requires-python = ">=3.12,<3.14"
+readme = "README.md"
+
+[project.scripts]
+embedder = "embedder.cli:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
