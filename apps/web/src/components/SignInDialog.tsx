@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { DevPasswordSignIn } from '@/components/DevPasswordSignIn';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -83,6 +84,7 @@ export function SignInDialog({
           </DialogDescription>
         </DialogHeader>
         <GoogleSignInButton next={next} />
+        <DevPasswordSignIn next={next} />
         <p className="text-xs text-muted-foreground">
           By continuing you agree to our terms and privacy policy.
         </p>

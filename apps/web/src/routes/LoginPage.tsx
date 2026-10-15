@@ -1,4 +1,5 @@
 import { Link, Navigate, useLocation } from 'react-router';
+import { DevPasswordSignIn } from '@/components/DevPasswordSignIn';
 import { GoogleSignInButton } from '@/components/SignInDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { safeNext } from '@/lib/auth';
@@ -20,7 +21,10 @@ export function LoginPage() {
           <CardDescription>Sign in to see your outfits, wardrobe and date rooms.</CardDescription>
         </CardHeader>
         <CardContent>
-          <GoogleSignInButton next={next} />
+          <div className="grid gap-3">
+            <GoogleSignInButton next={next} />
+            <DevPasswordSignIn next={next} />
+          </div>
         </CardContent>
       </Card>
       <p className="text-center text-sm text-muted-foreground">

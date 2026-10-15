@@ -17,3 +17,12 @@ export async function signInWithGoogle(next = '/app/feed'): Promise<void> {
   });
   if (error) throw error;
 }
+
+/**
+ * DEV/TESTING ONLY: email + password sign-in for the shared developer account. The form is shown
+ * only when VITE_DEV_PASSWORD_LOGIN=true; real users sign in with Google.
+ */
+export async function signInWithDevPassword(email: string, password: string): Promise<void> {
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+}

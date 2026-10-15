@@ -8,6 +8,11 @@ const WebEnv = z.object({
   VITE_SENTRY_DSN: z.string().optional(),
   VITE_POSTHOG_KEY: z.string().optional(),
   VITE_POSTHOG_HOST: z.string().optional(),
+  /** Dev/testing only: show an email + password form for the shared developer account. */
+  VITE_DEV_PASSWORD_LOGIN: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 const parsed = WebEnv.safeParse(import.meta.env);
