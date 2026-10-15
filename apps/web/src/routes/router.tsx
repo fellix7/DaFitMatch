@@ -1,22 +1,24 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { AppLayout } from './AppLayout';
+import { AuthCallbackPage } from './AuthCallbackPage';
 import { RequireAdult, RequireAgeConfirmed, RequireAuth } from './guards';
+import { LandingPage } from './LandingPage';
 import { LoginPage } from './LoginPage';
-import {
-  FeedPage,
-  HomePage,
-  NotFoundPage,
-  OnboardingPage,
-  RoomPage,
-  RouteErrorPage,
-} from './pages';
+import { FeedPage, NotFoundPage, OnboardingPage, RoomPage, RouteErrorPage } from './pages';
+import { TryPage } from './TryPage';
 
+/**
+ * Guest-first flow: /  ->  /try (style builder, no account)  ->  "Generate fit" opens Google
+ * sign-in  ->  /auth/callback saves the answers  ->  /app (age gate once, then the feed).
+ */
 export const routes: RouteObject[] = [
   {
     errorElement: <RouteErrorPage />,
     children: [
-      { path: '/', element: <HomePage /> },
+      { path: '/', element: <LandingPage /> },
+      { path: '/try', element: <TryPage /> },
       { path: '/login', element: <LoginPage /> },
+      { path: '/auth/callback', element: <AuthCallbackPage /> },
       {
         path: '/app',
         element: <RequireAuth />,

@@ -14,6 +14,7 @@
   "dependencies": {
     "@dafitmatch/shared": "workspace:*",
     "@hookform/resolvers": "5.9.1",
+    "@radix-ui/react-dialog": "1.1.23",
     "@radix-ui/react-slot": "1.3.3",
     "@supabase/supabase-js": "2.117.2",
     "@tanstack/react-query": "5.104.0",
