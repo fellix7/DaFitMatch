@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CoordinationMode, Occasion, ProductGender, Vote } from '../enums';
+import { CoordinationMode, Occasion, ProductGender, Vote, WardrobeMode } from '../enums';
 import { Archetype, Product, Venue } from './catalog';
 import { Id, Inr } from './common';
 import { Outfit } from './outfit';
@@ -7,6 +7,7 @@ import { Profile } from './profile';
 import { DateRoom, InviteCode, RoomMember, RoomPair } from './room';
 import { TasteProfile } from './taste';
 import { TryOn } from './interaction';
+import { CreateWardrobeItemRequest, UpdateWardrobeItemRequest, WardrobeItem } from './wardrobe';
 
 // ─── Request/response contracts for every HTTP endpoint ─────────────────────────────────
 // The API registers these as Fastify route schemas; the web client validates responses
@@ -39,10 +40,15 @@ export const ComposeOutfitsRequest = z.object({
   /** Compose for a date room (applies its coordination mode + shared palette). */
   room_id: Id.optional(),
   count: z.number().int().min(1).max(10).default(3),
+  /** off = catalog only; mix = reuse owned pieces where they fit; only = wardrobe only. */
+  wardrobe_mode: WardrobeMode.default('mix'),
 });
 export type ComposeOutfitsRequest = z.infer<typeof ComposeOutfitsRequest>;
 
-export const OutfitWithItems = Outfit.extend({ items: z.array(Product) });
+export const OutfitWithItems = Outfit.extend({
+  items: z.array(Product),
+  wardrobe_items: z.array(WardrobeItem),
+});
 export type OutfitWithItems = z.infer<typeof OutfitWithItems>;
 
 export const ComposeOutfitsResponse = z.object({ outfits: z.array(OutfitWithItems) });
@@ -108,12 +114,20 @@ export type ListVenuesResponse = z.infer<typeof ListVenuesResponse>;
 
 // shop
 export const ShopOutfitResponse = z.object({
+  /** Only the catalog items still to buy; wardrobe pieces are excluded. */
   items: z.array(Product),
   total_price_inr: Inr,
   /** Must be rendered on every shop panel. */
   disclosure: z.string(),
 });
 export type ShopOutfitResponse = z.infer<typeof ShopOutfitResponse>;
+
+// wardrobe
+export const ListWardrobeResponse = z.object({ items: z.array(WardrobeItem) });
+export type ListWardrobeResponse = z.infer<typeof ListWardrobeResponse>;
+
+export const WardrobeItemResponse = z.object({ item: WardrobeItem });
+export type WardrobeItemResponse = z.infer<typeof WardrobeItemResponse>;
 
 // archetypes (public catalog read, used by onboarding)
 export const ListArchetypesResponse = z.object({ archetypes: z.array(Archetype) });
@@ -215,6 +229,35 @@ export const endpoints = {
     auth: true,
     query: ListVenuesQuery,
     response: ListVenuesResponse,
+  },
+
+  listWardrobe: {
+    method: 'GET',
+    path: '/wardrobe',
+    auth: true,
+    response: ListWardrobeResponse,
+  },
+  addWardrobeItem: {
+    method: 'POST',
+    path: '/wardrobe',
+    auth: true,
+    body: CreateWardrobeItemRequest,
+    response: WardrobeItemResponse,
+  },
+  updateWardrobeItem: {
+    method: 'PATCH',
+    path: '/wardrobe/:id',
+    auth: true,
+    params: IdParams,
+    body: UpdateWardrobeItemRequest,
+    response: WardrobeItemResponse,
+  },
+  deleteWardrobeItem: {
+    method: 'DELETE',
+    path: '/wardrobe/:id',
+    auth: true,
+    params: IdParams,
+    response: OkResponse,
   },
 
   shopOutfit: {

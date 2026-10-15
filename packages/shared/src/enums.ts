@@ -30,8 +30,19 @@ export type Vote = z.infer<typeof Vote>;
 export const InteractionAction = z.enum(['like', 'skip', 'love', 'save', 'click', 'tryon', 'swap']);
 export type InteractionAction = z.infer<typeof InteractionAction>;
 
-export const InteractionTarget = z.enum(['product', 'outfit', 'room_pair', 'venue', 'archetype']);
+export const InteractionTarget = z.enum([
+  'product',
+  'outfit',
+  'room_pair',
+  'venue',
+  'archetype',
+  'wardrobe_item',
+]);
 export type InteractionTarget = z.infer<typeof InteractionTarget>;
 
 export const TryOnStatus = z.enum(['queued', 'running', 'succeeded', 'failed']);
 export type TryOnStatus = z.infer<typeof TryOnStatus>;
+
+/** How the composer uses the caller's own wardrobe. App-level only (no DB enum). */
+export const WardrobeMode = z.enum(['off', 'mix', 'only']);
+export type WardrobeMode = z.infer<typeof WardrobeMode>;

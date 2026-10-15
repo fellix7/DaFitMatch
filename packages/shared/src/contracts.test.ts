@@ -12,6 +12,9 @@ import {
   Product,
   SEPARATES_SLOTS,
   TryOnRequest,
+  CreateWardrobeItemRequest,
+  UpdateWardrobeItemRequest,
+  WardrobeImagePath,
   endpoints,
 } from './index';
 
@@ -109,5 +112,28 @@ describe('schemas', () => {
   it('every endpoint path is unique per method', () => {
     const keys = Object.values(endpoints).map((e) => `${e.method} ${e.path}`);
     expect(new Set(keys).size).toBe(keys.length);
+  });
+});
+
+describe('wardrobe', () => {
+  it('create request applies defaults; update request does not', () => {
+    const created = CreateWardrobeItemRequest.parse({ slot: 'top', category: 'shirt' });
+    expect(created.colors).toEqual([]);
+    const patch = UpdateWardrobeItemRequest.parse({ title: 'White linen shirt' });
+    expect(patch).toEqual({ title: 'White linen shirt' });
+  });
+
+  it('compose defaults to mixing in the wardrobe', () => {
+    const req = ComposeOutfitsRequest.parse({
+      occasion: 'brunch',
+      budget_inr: 3000,
+      gender: 'women',
+    });
+    expect(req.wardrobe_mode).toBe('mix');
+  });
+
+  it('wardrobe image path is a single file under a user id folder', () => {
+    expect(WardrobeImagePath.safeParse(`${uid}/shirt.jpg`).success).toBe(true);
+    expect(WardrobeImagePath.safeParse(`${uid}/a/b.jpg`).success).toBe(false);
   });
 });

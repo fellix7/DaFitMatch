@@ -5,6 +5,7 @@ export * from './schemas/profile';
 export * from './schemas/taste';
 export * from './schemas/catalog';
 export * from './schemas/outfit';
+export * from './schemas/wardrobe';
 export * from './schemas/room';
 export * from './schemas/interaction';
 export * from './schemas/api';

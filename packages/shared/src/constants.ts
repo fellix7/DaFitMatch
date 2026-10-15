@@ -43,11 +43,15 @@ export const SEPARATES_SLOTS = [
 export const STORAGE_BUCKETS = {
   userPhotos: 'user-photos',
   tryonResults: 'tryon-results',
+  wardrobePhotos: 'wardrobe-photos',
 } as const;
 
-/** Unsaved user photos are deleted after this many days (cleanup job lands in Phase 6). */
+/** Unsaved try-on input photos (user-photos bucket) are deleted after this many days (cleanup job lands in Phase 6). */
 export const PHOTO_RETENTION_DAYS = 30;
 
 /** Shown on every shop panel. */
 export const AFFILIATE_DISCLOSURE =
   'We may earn a commission when you buy through these links. Brands mentioned as style inspiration are not affiliated with DaFitMatch.';
+
+/** Upper bound on wardrobe items per user (abuse guard; enforced in SQL). */
+export const MAX_WARDROBE_ITEMS = 300;

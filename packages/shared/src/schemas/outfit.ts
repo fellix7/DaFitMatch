@@ -6,7 +6,11 @@ export const Outfit = z.object({
   id: Id,
   owner_id: Id,
   archetype_id: Id.nullable(),
-  item_ids: z.array(Id).min(1),
+  /** Catalog products (buyable). */
+  item_ids: z.array(Id),
+  /** Pieces the owner already has. An outfit has at least one item across both lists. */
+  wardrobe_item_ids: z.array(Id),
+  /** Sum of catalog product prices only; wardrobe pieces cost nothing. */
   total_price_inr: Inr,
   score: z.number().nullable(),
   rationale: z.string().nullable(),
