@@ -30,7 +30,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/api/**/*.ts', 'scripts/**/*.mjs', '*.js'],
+    files: ['apps/api/**/*.{ts,mjs}', '**/*.mjs', '*.js'],
     languageOptions: { globals: globals.node },
   },
   {
@@ -40,6 +40,28 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    },
+  },
+  {
+    // Guardrail: user-facing API code queries through the user-scoped client so RLS applies.
+    // The service-role client is for src/jobs/** (and future admin routes) only.
+    files: [
+      'apps/api/src/routes/**/*.ts',
+      'apps/api/src/plugins/**/*.ts',
+      'apps/api/src/services/**/*.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/lib/supabase-admin', '**/lib/supabase-admin.ts'],
+              message: 'Service-role client is for jobs/admin only. Use request.supabase (RLS).',
+            },
+          ],
+        },
+      ],
     },
   },
   {

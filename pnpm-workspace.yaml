@@ -3,6 +3,5 @@ packages:
   - packages/*
 
 # pnpm blocks dependency install scripts by default; allow only what we need.
-onlyBuiltDependencies:
-  - esbuild
-  - supabase
+allowBuilds:
+  esbuild: true
