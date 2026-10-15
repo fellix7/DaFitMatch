@@ -51,6 +51,10 @@ jobs:
     name: Migrations, seed, RLS tests, DB types
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # config.toml enables Google sign-in via env(); CI never signs in, so placeholders are enough.
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: ci-placeholder
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: ci-placeholder
     steps:
       - uses: actions/checkout@v5
 
