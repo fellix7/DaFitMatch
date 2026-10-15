@@ -28,7 +28,7 @@ const valid: Partial<Record<EndpointName, { url: string; payload?: object }>> = 
 };
 
 const stubbed = (Object.keys(endpoints) as EndpointName[]).filter(
-  (n) => n !== 'health' && n !== 'me',
+  (n) => !['health', 'me', 'confirmAge'].includes(n),
 );
 
 describe('stub routes', () => {

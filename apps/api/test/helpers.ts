@@ -38,18 +38,21 @@ export const profileRow = {
   city: 'Delhi NCR',
   default_budget_inr: 6000,
   is_adult: true,
+  age_confirmed_at: '2026-10-15T10:00:00+00:00',
   created_at: '2026-10-15T10:00:00.123456+00:00',
   updated_at: '2026-10-15T10:00:00.123456+00:00',
 };
 
 type Rows = Record<string, Record<string, unknown> | null>;
+type RpcResult = { data: unknown; error: { code: string; message: string } | null };
 
 /**
  * Minimal stand-in for a user-scoped supabase-js client: `.from(t).select().eq().maybeSingle()`.
  * Records which access tokens it was created with so tests can assert user scoping.
  */
-export function fakeUserClients(rows: Rows) {
+export function fakeUserClients(rows: Rows, rpc: Record<string, RpcResult> = {}) {
   const tokens: string[] = [];
+  const rpcCalls: { fn: string; args: unknown }[] = [];
   const factory = (token: string) => {
     tokens.push(token);
     const query = (table: string) => {
@@ -60,9 +63,15 @@ export function fakeUserClients(rows: Rows) {
       };
       return chain;
     };
-    return { from: query } as unknown as UserSupabaseClient;
+    return {
+      from: query,
+      rpc: async (fn: string, args: unknown) => {
+        rpcCalls.push({ fn, args });
+        return rpc[fn] ?? { data: null, error: { code: '42883', message: 'no such fn' } };
+      },
+    } as unknown as UserSupabaseClient;
   };
-  return { factory, tokens };
+  return { factory, tokens, rpcCalls };
 }
 
 export async function makeApp(deps: AppDeps = {}): Promise<FastifyInstance> {

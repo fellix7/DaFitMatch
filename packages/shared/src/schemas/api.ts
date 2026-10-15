@@ -3,7 +3,7 @@ import { CoordinationMode, Occasion, ProductGender, Vote, WardrobeMode } from '.
 import { Archetype, Product, Venue } from './catalog';
 import { Id, Inr } from './common';
 import { Outfit } from './outfit';
-import { Profile } from './profile';
+import { ConfirmAgeRequest, ConfirmAgeResponse, Profile } from './profile';
 import { DateRoom, InviteCode, RoomMember, RoomPair } from './room';
 import { TasteProfile } from './taste';
 import { TryOn } from './interaction';
@@ -148,6 +148,13 @@ interface EndpointDef {
 export const endpoints = {
   health: { method: 'GET', path: '/health', auth: false, response: HealthResponse },
   me: { method: 'GET', path: '/me', auth: true, response: MeResponse },
+  confirmAge: {
+    method: 'POST',
+    path: '/me/age',
+    auth: true,
+    body: ConfirmAgeRequest,
+    response: ConfirmAgeResponse,
+  },
 
   composeOutfits: {
     method: 'POST',

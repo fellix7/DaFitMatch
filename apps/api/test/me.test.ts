@@ -101,3 +101,42 @@ describe('GET /me: data', () => {
     await app.close();
   });
 });
+
+describe('POST /me/age', () => {
+  const post = async (factory: ReturnType<typeof fakeUserClients>['factory'], body: object) => {
+    const app = await makeApp({ createUserClient: factory });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/me/age',
+      payload: body,
+      headers: { authorization: `Bearer ${await signToken()}` },
+    });
+    await app.close();
+    return res;
+  };
+
+  it('passes the birth date to confirm_age and returns only the boolean', async () => {
+    const fake = fakeUserClients({}, { confirm_age: { data: true, error: null } });
+    const res = await post(fake.factory, { birth_date: '1995-06-01' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ is_adult: true });
+    expect(fake.rpcCalls).toEqual([{ fn: 'confirm_age', args: { birth_date: '1995-06-01' } }]);
+  });
+
+  it('409 when already confirmed', async () => {
+    const fake = fakeUserClients(
+      {},
+      { confirm_age: { data: null, error: { code: 'P0001', message: 'age already confirmed' } } },
+    );
+    const res = await post(fake.factory, { birth_date: '1995-06-01' });
+    expect(res.statusCode).toBe(409);
+    expect(res.json()).toMatchObject({ error: { code: 'age_already_confirmed' } });
+  });
+
+  it('400 for a malformed date (never reaches the database)', async () => {
+    const fake = fakeUserClients({});
+    const res = await post(fake.factory, { birth_date: '01/06/1995' });
+    expect(res.statusCode).toBe(400);
+    expect(fake.rpcCalls).toHaveLength(0);
+  });
+});
