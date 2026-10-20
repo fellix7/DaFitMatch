@@ -1,7 +1,6 @@
 import { Link, Navigate, isRouteErrorResponse, useParams, useRouteError } from 'react-router';
 import { AgeGate } from '@/components/AgeGate';
 import { ComingSoon, FullPageMessage } from '@/components/ComingSoon';
-import { MeCard } from '@/components/MeCard';
 import { useMe } from '@/lib/queries';
 
 /** One-time age gate right after the first sign-in; then on to the feed. */
@@ -10,18 +9,6 @@ export function OnboardingPage() {
   if (!me.data) return null;
   if (!me.data.profile.age_confirmed_at) return <AgeGate />;
   return <Navigate to="/app/feed" replace />;
-}
-
-export function FeedPage() {
-  return (
-    <>
-      <ComingSoon title="Your outfits" phase={3}>
-        Complete looks built from real products (and your own wardrobe), scored to the style you
-        just saved, will appear here.
-      </ComingSoon>
-      <MeCard />
-    </>
-  );
 }
 
 export function RoomPage() {

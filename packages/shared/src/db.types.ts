@@ -221,6 +221,7 @@ export type Database = {
           category: string
           colors: string[]
           created_at: string
+          embedded_at: string | null
           embedding: unknown
           external_id: string
           formality: number
@@ -234,6 +235,7 @@ export type Database = {
           price_inr: number
           slot: Database["public"]["Enums"]["slot"]
           source: Database["public"]["Enums"]["product_source"]
+          tags_version: number
           title: string
           updated_at: string
         }
@@ -243,6 +245,7 @@ export type Database = {
           category: string
           colors?: string[]
           created_at?: string
+          embedded_at?: string | null
           embedding?: unknown
           external_id: string
           formality: number
@@ -256,6 +259,7 @@ export type Database = {
           price_inr: number
           slot: Database["public"]["Enums"]["slot"]
           source: Database["public"]["Enums"]["product_source"]
+          tags_version?: number
           title: string
           updated_at?: string
         }
@@ -265,6 +269,7 @@ export type Database = {
           category?: string
           colors?: string[]
           created_at?: string
+          embedded_at?: string | null
           embedding?: unknown
           external_id?: string
           formality?: number
@@ -278,6 +283,7 @@ export type Database = {
           price_inr?: number
           slot?: Database["public"]["Enums"]["slot"]
           source?: Database["public"]["Enums"]["product_source"]
+          tags_version?: number
           title?: string
           updated_at?: string
         }
@@ -327,6 +333,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      quiz_cards: {
+        Row: {
+          active: boolean
+          archetype_id: string
+          created_at: string
+          gender: Database["public"]["Enums"]["product_gender"]
+          id: string
+          image_urls: string[]
+          item_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          archetype_id: string
+          created_at?: string
+          gender: Database["public"]["Enums"]["product_gender"]
+          id?: string
+          image_urls?: string[]
+          item_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          archetype_id?: string
+          created_at?: string
+          gender?: Database["public"]["Enums"]["product_gender"]
+          id?: string
+          image_urls?: string[]
+          item_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_cards_archetype_id_fkey"
+            columns: ["archetype_id"]
+            isOneToOne: false
+            referencedRelation: "archetypes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reference_looks: {
         Row: {
@@ -694,6 +741,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archetype_slot_products: {
+        Args: {
+          k?: number
+          p_archetype_id: string
+          p_gender: Database["public"]["Enums"]["product_gender"]
+          p_slot: Database["public"]["Enums"]["slot"]
+        }
+        Returns: {
+          affiliate_url: string
+          brand: string
+          category: string
+          colors: string[]
+          external_id: string
+          formality: number
+          gender: Database["public"]["Enums"]["product_gender"]
+          id: string
+          image_url: string
+          in_stock: boolean
+          last_seen_at: string
+          occasions: string[]
+          price_inr: number
+          similarity: number
+          slot: Database["public"]["Enums"]["slot"]
+          source: Database["public"]["Enums"]["product_source"]
+          title: string
+        }[]
+      }
       confirm_age: { Args: { birth_date: string }; Returns: boolean }
       consume_tryon_quota: { Args: never; Returns: number }
       join_room: {
@@ -766,6 +840,43 @@ export type Database = {
           title: string
         }[]
       }
+      rank_products: {
+        Args: {
+          k?: number
+          p_cursor_similarity?: number
+          p_cursor_id?: string
+          p_gender?: Database["public"]["Enums"]["product_gender"]
+          p_max_price?: number
+          p_slot?: Database["public"]["Enums"]["slot"]
+        }
+        Returns: {
+          affiliate_url: string
+          brand: string
+          category: string
+          colors: string[]
+          external_id: string
+          formality: number
+          gender: Database["public"]["Enums"]["product_gender"]
+          id: string
+          image_url: string
+          in_stock: boolean
+          last_seen_at: string
+          occasions: string[]
+          price_inr: number
+          similarity: number
+          slot: Database["public"]["Enums"]["slot"]
+          source: Database["public"]["Enums"]["product_source"]
+          title: string
+        }[]
+      }
+      record_interaction: {
+        Args: {
+          p_action: Database["public"]["Enums"]["interaction_action"]
+          p_target_id: string
+          p_target_type: Database["public"]["Enums"]["interaction_target"]
+        }
+        Returns: Json
+      }
       room_members: {
         Args: { p_room_id: string }
         Returns: {
@@ -773,6 +884,28 @@ export type Database = {
           seat: string
           user_id: string
         }[]
+      }
+      submit_quiz: {
+        Args: { p_submission: Json }
+        Returns: {
+          archetype_weights: Json
+          colors_avoid: string[]
+          colors_like: string[]
+          comfort_vs_statement: number
+          fit_prefs: Json
+          interaction_count: number
+          never_wear: string[]
+          taste_vector: unknown
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "taste_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       vote_room_pair: {
         Args: { p_pair_id: string; p_vote: Database["public"]["Enums"]["vote"] }

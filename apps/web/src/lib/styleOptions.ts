@@ -1,4 +1,11 @@
-import type { GenderPresentation, Occasion, ProductGender, WardrobeMode } from '@dafitmatch/shared';
+import type {
+  GenderPresentation,
+  Occasion,
+  ProductGender,
+  QuizCatalog,
+  Slot,
+  WardrobeMode,
+} from '@dafitmatch/shared';
 
 export const GENDER_PRESENTATION: { value: GenderPresentation; label: string }[] = [
   { value: 'feminine', label: 'Feminine' },
@@ -27,8 +34,10 @@ export const COLORS: { name: string; hex: string }[] = [
   { name: 'black', hex: '#111111' },
   { name: 'white', hex: '#ffffff' },
   { name: 'ivory', hex: '#f6f0e1' },
+  { name: 'cream', hex: '#f4ead5' },
   { name: 'beige', hex: '#d9c7a7' },
   { name: 'camel', hex: '#b58a57' },
+  { name: 'tan', hex: '#c8a887' },
   { name: 'brown', hex: '#6b4423' },
   { name: 'grey', hex: '#8a8a8a' },
   { name: 'navy', hex: '#1d2a4d' },
@@ -80,4 +89,24 @@ export const WARDROBE_MODES: { value: WardrobeMode; label: string; hint: string 
   { value: 'mix', label: 'Mix it in', hint: 'Reuse pieces I own, buy what is missing' },
   { value: 'off', label: 'All new', hint: 'Only show pieces I can buy' },
   { value: 'only', label: 'Only my wardrobe', hint: 'Style me from what I already have' },
+];
+
+/** Hex swatch for every COLOR_VOCAB name (used by the quiz colour chips). */
+export const COLOR_HEX: Record<string, string> = Object.fromEntries(
+  COLORS.map((c) => [c.name, c.hex]),
+);
+
+/** Catalog section shown in the onboarding quiz; `gender` filters the swipe cards. */
+export const QUIZ_CATALOG: { value: QuizCatalog; label: string; gender?: ProductGender }[] = [
+  { value: 'womenswear', label: "Women's", gender: 'women' },
+  { value: 'menswear', label: "Men's", gender: 'men' },
+  { value: 'both', label: 'Both' },
+];
+
+/** Slot filters for the taste-ranked feed. */
+export const FEED_SLOTS: { value: Slot; label: string }[] = [
+  { value: 'top', label: 'Tops' },
+  { value: 'bottom', label: 'Bottoms' },
+  { value: 'footwear', label: 'Footwear' },
+  { value: 'layer', label: 'Layers' },
 ];

@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(23);
 
 select has_extension('vector', 'pgvector is installed');
 
@@ -15,8 +15,14 @@ select is(
 
 select tables_are('public', array[
   'profiles', 'taste_profiles', 'archetypes', 'reference_looks', 'products', 'wardrobe_items',
-  'outfits', 'date_rooms', 'room_pairs', 'interactions', 'tryons', 'venues', 'usage_limits', 'app_settings'
-], 'public tables are exactly the v1 set');
+  'outfits', 'date_rooms', 'room_pairs', 'interactions', 'tryons', 'venues', 'usage_limits',
+  'app_settings', 'quiz_cards'
+], 'public tables are exactly the expected set');
+
+-- Phase 2 columns & table
+select has_column('public', 'products', 'tags_version', 'products.tags_version exists');
+select has_column('public', 'products', 'embedded_at', 'products.embedded_at exists');
+select has_column('public', 'quiz_cards', 'item_ids', 'quiz_cards.item_ids exists');
 
 -- halfvec(768) embedding columns
 select col_type_is('public', 'products', 'embedding', 'extensions', 'halfvec(768)', 'products.embedding is halfvec(768)');

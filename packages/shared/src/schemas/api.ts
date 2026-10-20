@@ -1,13 +1,23 @@
 import { z } from 'zod';
-import { CoordinationMode, Occasion, ProductGender, Vote, WardrobeMode } from '../enums';
+import {
+  CoordinationMode,
+  InteractionAction,
+  InteractionTarget,
+  Occasion,
+  ProductGender,
+  Slot,
+  Vote,
+  WardrobeMode,
+} from '../enums';
 import { Archetype, Product, Venue } from './catalog';
 import { Id, Inr } from './common';
 import { Outfit } from './outfit';
 import { ConfirmAgeRequest, ConfirmAgeResponse, Profile } from './profile';
 import { DateRoom, InviteCode, RoomMember, RoomPair } from './room';
-import { StyleQuizAnswers } from './quiz';
+import { QuizCard, QuizSubmission, StyleQuizAnswers } from './quiz';
 import { TasteProfile } from './taste';
-import { TryOn } from './interaction';
+import { Interaction, TryOn } from './interaction';
+import { RankedProduct, FEED_MAX_PAGE_SIZE, FEED_PAGE_SIZE, FeedCursor } from './feed';
 import { CreateWardrobeItemRequest, UpdateWardrobeItemRequest, WardrobeItem } from './wardrobe';
 
 // ─── Request/response contracts for every HTTP endpoint ─────────────────────────────────
@@ -134,6 +144,70 @@ export type WardrobeItemResponse = z.infer<typeof WardrobeItemResponse>;
 export const ListArchetypesResponse = z.object({ archetypes: z.array(Archetype) });
 export type ListArchetypesResponse = z.infer<typeof ListArchetypesResponse>;
 
+// ─── Phase 2: onboarding quiz ───────────────────────────────────────────────────────────
+/** GET /quiz/cards: optional gender filter; omit for a balanced mix across both catalogs. */
+export const ListQuizCardsQuery = z.object({
+  gender: ProductGender.optional(),
+});
+export type ListQuizCardsQuery = z.infer<typeof ListQuizCardsQuery>;
+
+export const ListQuizCardsResponse = z.object({
+  cards: z.array(QuizCard),
+});
+export type ListQuizCardsResponse = z.infer<typeof ListQuizCardsResponse>;
+
+/** One matched archetype in the quiz result ("Your style: …"). */
+export const ArchetypeMatch = z.object({
+  slug: z.string().regex(/^[a-z0-9-]+$/),
+  name: z.string(),
+  weight: z.number().min(0).max(1),
+  description: z.string(),
+  benchmark_brands: z.array(z.string()),
+});
+export type ArchetypeMatch = z.infer<typeof ArchetypeMatch>;
+
+/** POST /quiz/submit response: the saved profile summary + the caller's top archetypes. */
+export const SubmitQuizResponse = z.object({
+  taste_profile: TasteProfile,
+  top_archetypes: z.array(ArchetypeMatch).max(3),
+  budget_inr: Inr,
+});
+export type SubmitQuizResponse = z.infer<typeof SubmitQuizResponse>;
+
+// ─── Phase 2: taste-ranked feed ─────────────────────────────────────────────────────────
+export const ListFeedProductsQuery = z.object({
+  slot: Slot.optional(),
+  gender: ProductGender.optional(),
+  max_price: z.coerce.number().int().min(0).optional(),
+  limit: z.coerce.number().int().min(1).max(FEED_MAX_PAGE_SIZE).default(FEED_PAGE_SIZE),
+  cursor: FeedCursor.optional(),
+});
+export type ListFeedProductsQuery = z.infer<typeof ListFeedProductsQuery>;
+
+export const ListFeedProductsResponse = z.object({
+  products: z.array(RankedProduct),
+  /** Pass back as `cursor` for the next page; null when exhausted. */
+  next_cursor: z.string().nullable(),
+});
+export type ListFeedProductsResponse = z.infer<typeof ListFeedProductsResponse>;
+
+// ─── Phase 2: interactions ──────────────────────────────────────────────────────────────
+export const RecordInteractionRequest = z.object({
+  target_type: InteractionTarget,
+  target_id: Id,
+  action: InteractionAction,
+});
+export type RecordInteractionRequest = z.infer<typeof RecordInteractionRequest>;
+
+export const RecordInteractionResponse = z.object({
+  interaction: Interaction,
+  taste: z.object({
+    interaction_count: z.number().int().nonnegative(),
+    version: z.number().int().nonnegative(),
+  }),
+});
+export type RecordInteractionResponse = z.infer<typeof RecordInteractionResponse>;
+
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 interface EndpointDef {
   method: Method;
@@ -168,6 +242,35 @@ export const endpoints = {
     auth: true,
     body: ConfirmAgeRequest,
     response: ConfirmAgeResponse,
+  },
+
+  listQuizCards: {
+    method: 'GET',
+    path: '/quiz/cards',
+    auth: true,
+    query: ListQuizCardsQuery,
+    response: ListQuizCardsResponse,
+  },
+  submitQuiz: {
+    method: 'POST',
+    path: '/quiz/submit',
+    auth: true,
+    body: QuizSubmission,
+    response: SubmitQuizResponse,
+  },
+  listFeedProducts: {
+    method: 'GET',
+    path: '/feed/products',
+    auth: true,
+    query: ListFeedProductsQuery,
+    response: ListFeedProductsResponse,
+  },
+  recordInteraction: {
+    method: 'POST',
+    path: '/interactions',
+    auth: true,
+    body: RecordInteractionRequest,
+    response: RecordInteractionResponse,
   },
 
   composeOutfits: {

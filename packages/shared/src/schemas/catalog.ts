@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ProductGender, ProductSource, Slot } from '../enums';
-import { ColorName, HttpUrl, Id, Inr, Timestamp } from './common';
+import { Occasion, ProductGender, ProductSource, Slot } from '../enums';
+import { ColorName, ColorVocab, HttpUrl, Id, Inr, Timestamp } from './common';
 
 export const Archetype = z.object({
   id: Id,
@@ -33,6 +33,24 @@ export const Product = z.object({
   last_seen_at: Timestamp.nullable(),
 });
 export type Product = z.infer<typeof Product>;
+
+/**
+ * Bump when the tagging prompt/schema changes so rows can be re-tagged selectively.
+ * Stored in `products.tags_version` (catalog ingest is a batch job; see ADR 0001/0002).
+ */
+export const PRODUCT_TAGS_VERSION = 1;
+
+/**
+ * Structured tags produced by the offline LLM tagging job for one product.
+ * `colors` is restricted to the fixed COLOR_VOCAB; `occasions` to the Occasion enum.
+ */
+export const ProductTags = z.object({
+  slot: Slot,
+  formality: z.number().int().min(1).max(5),
+  colors: z.array(ColorVocab).max(8),
+  occasions: z.array(Occasion).max(6),
+});
+export type ProductTags = z.infer<typeof ProductTags>;
 
 /** API shape of a venue. `vibe_embedding` never leaves the database. */
 export const Venue = z.object({

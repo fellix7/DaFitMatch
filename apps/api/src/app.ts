@@ -23,6 +23,7 @@ import { meRoutes } from './routes/me';
 import { outfitRoutes } from './routes/outfits';
 import { roomRoutes } from './routes/rooms';
 import { shopRoutes } from './routes/shop';
+import { tasteRoutes } from './routes/taste';
 import { tryonRoutes } from './routes/tryon';
 import { venueRoutes } from './routes/venues';
 import { wardrobeRoutes } from './routes/wardrobe';
@@ -106,6 +107,7 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
   await app.register(async (scope) => {
     scope.addHook('onRequest', scope.authenticate);
     await scope.register(meRoutes);
+    await scope.register(tasteRoutes);
     await scope.register(outfitRoutes);
     await scope.register(wardrobeRoutes);
     await scope.register(roomRoutes);

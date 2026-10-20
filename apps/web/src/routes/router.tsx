@@ -1,10 +1,12 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { AppLayout } from './AppLayout';
 import { AuthCallbackPage } from './AuthCallbackPage';
+import { FeedPage } from './FeedPage';
 import { RequireAdult, RequireAgeConfirmed, RequireAuth } from './guards';
 import { LandingPage } from './LandingPage';
 import { LoginPage } from './LoginPage';
-import { FeedPage, NotFoundPage, OnboardingPage, RoomPage, RouteErrorPage } from './pages';
+import { NotFoundPage, OnboardingPage, RoomPage, RouteErrorPage } from './pages';
+import { QuizPage } from './QuizPage';
 import { TryPage } from './TryPage';
 
 /**
@@ -31,6 +33,7 @@ export const routes: RouteObject[] = [
                 children: [
                   { index: true, element: <Navigate to="feed" replace /> },
                   { path: 'onboarding', element: <OnboardingPage /> },
+                  { path: 'quiz', element: <QuizPage /> },
                   { path: 'feed', element: <FeedPage /> },
                   {
                     // Adults only: date rooms (and, later, photo upload / try-on routes).
