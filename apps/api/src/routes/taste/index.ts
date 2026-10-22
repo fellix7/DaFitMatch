@@ -24,6 +24,17 @@ const QUIZ_CARD_COLUMNS = 'id, archetype_id, item_ids, image_urls';
 // taste_vector is deliberately never selected: vectors stay in the database.
 const FEED_TASTE_COLUMNS = 'colors_like';
 
+/**
+ * Per-route limits, on top of the global one (120/min). The quiz is a one-off, the feed is
+ * browsed a lot, and interactions are logged on every swipe.
+ */
+const LIMITS = {
+  quizCards: { max: 20, timeWindow: '1 minute' },
+  quizSubmit: { max: 5, timeWindow: '1 minute' },
+  feed: { max: 90, timeWindow: '1 minute' },
+  interactions: { max: 60, timeWindow: '1 minute' },
+} as const;
+
 type FeedRow = Database['public']['Functions']['rank_products']['Returns'][number];
 type RpcError = { code?: string; message: string };
 
@@ -32,7 +43,7 @@ const dbFailure = (log: FastifyBaseLogger, err: unknown, what: string) => {
   return new HttpError(500, 'internal', `Could not ${what}`);
 };
 
-/** Fisher–Yates (unbiased) shuffle of a copy; the quiz shows a random QUIZ_CARD_COUNT card run. */
+/** Fisherâ€“Yates (unbiased) shuffle of a copy; the quiz shows a random QUIZ_CARD_COUNT card run. */
 function shuffle<T>(items: readonly T[]): T[] {
   const out = items.slice();
   for (let i = out.length - 1; i > 0; i -= 1) {
@@ -102,113 +113,129 @@ async function topArchetypes(
 
 export const tasteRoutes: FastifyPluginAsyncZod = async (app) => {
   /** GET /quiz/cards: a shuffled run of active onboarding cards for the caller's catalog section. */
-  app.get('/quiz/cards', { schema: schemaFor('listQuizCards') }, async (request) => {
-    const { supabase } = requireAuth(request);
-    const { gender } = request.query as ListQuizCardsQuery;
+  app.get(
+    '/quiz/cards',
+    { schema: schemaFor('listQuizCards'), config: { rateLimit: LIMITS.quizCards } },
+    async (request) => {
+      const { supabase } = requireAuth(request);
+      const { gender } = request.query as ListQuizCardsQuery;
 
-    let query = supabase.from('quiz_cards').select(QUIZ_CARD_COLUMNS).eq('active', true);
-    if (gender) query = query.eq('gender', gender);
-    const { data, error } = await query;
-    if (error) throw dbFailure(request.log, error, 'load quiz cards');
+      let query = supabase.from('quiz_cards').select(QUIZ_CARD_COLUMNS).eq('active', true);
+      if (gender) query = query.eq('gender', gender);
+      const { data, error } = await query;
+      if (error) throw dbFailure(request.log, error, 'load quiz cards');
 
-    const cards = shuffle((data ?? []) as QuizCard[]).slice(0, QUIZ_CARD_COUNT);
-    return ListQuizCardsResponse.parse({ cards });
-  });
+      const cards = shuffle((data ?? []) as QuizCard[]).slice(0, QUIZ_CARD_COUNT);
+      return ListQuizCardsResponse.parse({ cards });
+    },
+  );
 
   /**
    * POST /quiz/submit: saves the completed quiz (explicit fields + swipe-derived taste) through the
    * submit_quiz RPC, then returns the profile summary and the caller's top styles for the result screen.
    */
-  app.post('/quiz/submit', { schema: schemaFor('submitQuiz') }, async (request) => {
-    const { user, supabase } = requireAuth(request);
-    const submission = request.body as QuizSubmission;
+  app.post(
+    '/quiz/submit',
+    { schema: schemaFor('submitQuiz'), config: { rateLimit: LIMITS.quizSubmit } },
+    async (request) => {
+      const { user, supabase } = requireAuth(request);
+      const submission = request.body as QuizSubmission;
 
-    const { data, error } = await supabase.rpc('submit_quiz', { p_submission: submission });
-    if (error) {
-      const err = error as RpcError;
-      if (err.code === '22023') throw new HttpError(400, 'bad_request', 'Unknown quiz card');
-      if (err.code === '28000')
-        throw new HttpError(401, 'unauthorized', 'Sign in to save your quiz');
-      throw dbFailure(request.log, err, 'save quiz');
-    }
-    const taste = TasteProfile.parse(data);
+      const { data, error } = await supabase.rpc('submit_quiz', { p_submission: submission });
+      if (error) {
+        const err = error as RpcError;
+        if (err.code === '22023') throw new HttpError(400, 'bad_request', 'Unknown quiz card');
+        if (err.code === '28000')
+          throw new HttpError(401, 'unauthorized', 'Sign in to save your quiz');
+        throw dbFailure(request.log, err, 'save quiz');
+      }
+      const taste = TasteProfile.parse(data);
 
-    const [archetypes, profile] = await Promise.all([
-      topArchetypes(supabase, taste, request.log),
-      supabase.from('profiles').select('default_budget_inr').eq('id', user.id).maybeSingle(),
-    ]);
-    if (profile.error) throw dbFailure(request.log, profile.error, 'load profile');
+      const [archetypes, profile] = await Promise.all([
+        topArchetypes(supabase, taste, request.log),
+        supabase.from('profiles').select('default_budget_inr').eq('id', user.id).maybeSingle(),
+      ]);
+      if (profile.error) throw dbFailure(request.log, profile.error, 'load profile');
 
-    return SubmitQuizResponse.parse({
-      taste_profile: taste,
-      top_archetypes: archetypes,
-      budget_inr: profile.data?.default_budget_inr ?? 6000,
-    });
-  });
+      return SubmitQuizResponse.parse({
+        taste_profile: taste,
+        top_archetypes: archetypes,
+        budget_inr: profile.data?.default_budget_inr ?? 6000,
+      });
+    },
+  );
 
   /**
    * GET /feed/products: the taste-ranked catalog. rank_products blends the caller's taste vector with
    * their top archetype centroid; the cursor is keyset on the returned score.
    */
-  app.get('/feed/products', { schema: schemaFor('listFeedProducts') }, async (request) => {
-    const { user, supabase } = requireAuth(request);
-    const q = request.query as ListFeedProductsQuery;
+  app.get(
+    '/feed/products',
+    { schema: schemaFor('listFeedProducts'), config: { rateLimit: LIMITS.feed } },
+    async (request) => {
+      const { user, supabase } = requireAuth(request);
+      const q = request.query as ListFeedProductsQuery;
 
-    let cursorSimilarity: number | undefined;
-    let cursorId: string | undefined;
-    if (q.cursor) {
-      const [score, id] = q.cursor.split('|');
-      cursorSimilarity = Number(score);
-      cursorId = id;
-    }
+      let cursorSimilarity: number | undefined;
+      let cursorId: string | undefined;
+      if (q.cursor) {
+        const [score, id] = q.cursor.split('|');
+        cursorSimilarity = Number(score);
+        cursorId = id;
+      }
 
-    const [ranked, taste] = await Promise.all([
-      supabase.rpc('rank_products', {
-        p_slot: q.slot,
-        p_gender: q.gender,
-        p_max_price: q.max_price,
-        p_cursor_similarity: cursorSimilarity,
-        p_cursor_id: cursorId,
-        k: q.limit,
-      }),
-      supabase
-        .from('taste_profiles')
-        .select(FEED_TASTE_COLUMNS)
-        .eq('user_id', user.id)
-        .maybeSingle(),
-    ]);
-    if (ranked.error) throw dbFailure(request.log, ranked.error, 'rank products');
-    if (taste.error) throw dbFailure(request.log, taste.error, 'load taste profile');
+      const [ranked, taste] = await Promise.all([
+        supabase.rpc('rank_products', {
+          p_slot: q.slot,
+          p_gender: q.gender,
+          p_max_price: q.max_price,
+          p_cursor_similarity: cursorSimilarity,
+          p_cursor_id: cursorId,
+          k: q.limit,
+        }),
+        supabase
+          .from('taste_profiles')
+          .select(FEED_TASTE_COLUMNS)
+          .eq('user_id', user.id)
+          .maybeSingle(),
+      ]);
+      if (ranked.error) throw dbFailure(request.log, ranked.error, 'rank products');
+      if (taste.error) throw dbFailure(request.log, taste.error, 'load taste profile');
 
-    const colorsLike = taste.data?.colors_like ?? [];
-    const rows = ranked.data ?? [];
-    const products = rows.map((row) => ({
-      product: toProduct(row),
-      score: row.similarity,
-      reason_tags: reasonTags(row, colorsLike, q.max_price),
-    }));
-    const last = rows[rows.length - 1];
-    const next_cursor =
-      rows.length === q.limit && last ? `${last.similarity.toFixed(9)}|${last.id}` : null;
+      const colorsLike = taste.data?.colors_like ?? [];
+      const rows = ranked.data ?? [];
+      const products = rows.map((row) => ({
+        product: toProduct(row),
+        score: row.similarity,
+        reason_tags: reasonTags(row, colorsLike, q.max_price),
+      }));
+      const last = rows[rows.length - 1];
+      const next_cursor =
+        rows.length === q.limit && last ? `${last.similarity.toFixed(9)}|${last.id}` : null;
 
-    return ListFeedProductsResponse.parse({ products, next_cursor });
-  });
+      return ListFeedProductsResponse.parse({ products, next_cursor });
+    },
+  );
 
   /** POST /interactions: logs a like/skip/save/etc. and nudges the caller's taste vector. */
-  app.post('/interactions', { schema: schemaFor('recordInteraction') }, async (request) => {
-    const { supabase } = requireAuth(request);
-    const body = request.body as RecordInteractionRequest;
+  app.post(
+    '/interactions',
+    { schema: schemaFor('recordInteraction'), config: { rateLimit: LIMITS.interactions } },
+    async (request) => {
+      const { supabase } = requireAuth(request);
+      const body = request.body as RecordInteractionRequest;
 
-    const { data, error } = await supabase.rpc('record_interaction', {
-      p_target_type: body.target_type,
-      p_target_id: body.target_id,
-      p_action: body.action,
-    });
-    if (error) {
-      const err = error as RpcError;
-      if (err.code === '28000') throw new HttpError(401, 'unauthorized', 'Sign in to record');
-      throw dbFailure(request.log, err, 'record interaction');
-    }
-    return RecordInteractionResponse.parse(data);
-  });
+      const { data, error } = await supabase.rpc('record_interaction', {
+        p_target_type: body.target_type,
+        p_target_id: body.target_id,
+        p_action: body.action,
+      });
+      if (error) {
+        const err = error as RpcError;
+        if (err.code === '28000') throw new HttpError(401, 'unauthorized', 'Sign in to record');
+        throw dbFailure(request.log, err, 'record interaction');
+      }
+      return RecordInteractionResponse.parse(data);
+    },
+  );
 };

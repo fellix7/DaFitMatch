@@ -1,0 +1,165 @@
+{
+  "root": "images",
+  "archetypes": [
+    {
+      "slug": "quiet-luxury",
+      "looks": [
+        {
+          "image": "quiet-luxury/01.jpg",
+          "source_brand": "Ralph Lauren",
+          "source_url": "",
+          "gender": "men"
+        },
+        {
+          "image": "quiet-luxury/02.jpg",
+          "source_brand": "Loro Piana",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "streetwear",
+      "looks": [
+        {
+          "image": "streetwear/01.jpg",
+          "source_brand": "Stussy",
+          "source_url": "",
+          "gender": "unisex"
+        }
+      ]
+    },
+    {
+      "slug": "minimal",
+      "looks": [
+        {
+          "image": "minimal/01.jpg",
+          "source_brand": "COS",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "preppy",
+      "looks": [
+        {
+          "image": "preppy/01.jpg",
+          "source_brand": "Brooks Brothers",
+          "source_url": "",
+          "gender": "men"
+        }
+      ]
+    },
+    {
+      "slug": "edgy",
+      "looks": [
+        {
+          "image": "edgy/01.jpg",
+          "source_brand": "AllSaints",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "boho",
+      "looks": [
+        {
+          "image": "boho/01.jpg",
+          "source_brand": "Free People",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "athleisure",
+      "looks": [
+        {
+          "image": "athleisure/01.jpg",
+          "source_brand": "Lululemon",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "indo-western",
+      "looks": [
+        {
+          "image": "indo-western/01.jpg",
+          "source_brand": "Sabyasachi",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "festive",
+      "looks": [
+        {
+          "image": "festive/01.jpg",
+          "source_brand": "Anamika Khanna",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "smart-casual",
+      "looks": [
+        {
+          "image": "smart-casual/01.jpg",
+          "source_brand": "Massimo Dutti",
+          "source_url": "",
+          "gender": "men"
+        }
+      ]
+    },
+    {
+      "slug": "soft-romantic",
+      "looks": [
+        {
+          "image": "soft-romantic/01.jpg",
+          "source_brand": "Ganni",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "y2k",
+      "looks": [
+        {
+          "image": "y2k/01.jpg",
+          "source_brand": "Diesel",
+          "source_url": "",
+          "gender": "women"
+        }
+      ]
+    },
+    {
+      "slug": "resort-coastal",
+      "looks": [
+        {
+          "image": "resort-coastal/01.jpg",
+          "source_brand": "Jacquemus",
+          "source_url": "",
+          "gender": "unisex"
+        }
+      ]
+    },
+    {
+      "slug": "utility-techwear",
+      "looks": [
+        {
+          "image": "utility-techwear/01.jpg",
+          "source_brand": "Stone Island",
+          "source_url": "",
+          "gender": "men"
+        }
+      ]
+    }
+  ]
+}

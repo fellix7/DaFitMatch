@@ -14,6 +14,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // The Playwright specs in e2e/ are not vitest suites.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    // jsdom is slow here: the quiz flow renders 24 cards, so give the tests room.
+    testTimeout: 20_000,
     env: {
       VITE_SUPABASE_URL: 'http://127.0.0.1:54321',
       VITE_SUPABASE_PUBLISHABLE_KEY: 'test-publishable',

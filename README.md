@@ -48,10 +48,26 @@ docs/decisions      ADRs
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm test
+pnpm e2e                       # Playwright (once: pnpm --filter @dafitmatch/web exec playwright install chromium)
 ```
 
 CI runs these plus migrations on a fresh database, the pgTAP RLS suites, a DB-types drift check and the
 embedder's ruff + pytest.
+
+## Catalog pipeline (offline)
+
+Live requests never embed or generate anything: these batch jobs fill the catalog first.
+
+```bash
+pnpm --filter @dafitmatch/api ingest -- --source csv --file path/to/products.csv
+pnpm --filter @dafitmatch/api tag:products      # LLM tags (title, colours, formality, occasions)
+pnpm --filter @dafitmatch/api quiz:cards        # reference-look cards for the onboarding quiz
+pnpm --filter @dafitmatch/api catalog:report    # coverage + quality report
+pnpm --filter @dafitmatch/api bench:feed        # feed latency (p50/p95) + the EXPLAIN plan
+```
+
+Embeddings are written by the Python batch job (see `workers/embedder/README.md`): product vectors,
+reference looks, archetype centroids, wardrobe items and venue vibes — all in one 768-dim space.
 
 > **Can't reach Supabase from your laptop?** Some Indian ISPs DNS-block `*.supabase.co`. Turn on
 > DNS-over-HTTPS (Windows: Settings → Network → DNS server assignment → DNS over HTTPS). See ADR 0008.

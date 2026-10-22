@@ -43,6 +43,11 @@ export default tseslint.config(
     },
   },
   {
+    // The Playwright specs run in Node (they drive a browser), so they need Node globals too.
+    files: ['apps/web/e2e/**/*.{ts,tsx}', 'apps/web/playwright.config.ts'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
+  {
     // Guardrail: user-facing API code queries through the user-scoped client so RLS applies.
     // The service-role client is for src/jobs/** (and future admin routes) only.
     files: [

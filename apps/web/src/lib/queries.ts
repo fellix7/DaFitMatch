@@ -1,4 +1,6 @@
 import type {
+  InteractionAction,
+  ListFeedProductsResponse,
   ProductGender,
   QuizSubmission,
   RecordInteractionRequest,
@@ -11,7 +13,9 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
 } from '@tanstack/react-query';
+import { track } from './analytics';
 import { api, ApiClientError } from './api';
 import { useSession } from './session';
 
@@ -89,11 +93,18 @@ export function useSubmitQuiz() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: QuizSubmission) => api('submitQuiz', { body }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['me'] });
-      qc.invalidateQueries({ queryKey: ['feed'] });
+    onSuccess: (_data, body) => {
+      track('quiz_completed', { swipes: body.swipes.length, catalog: body.basics.catalog });
+      void qc.invalidateQueries({ queryKey: ['me'] });
+      void qc.invalidateQueries({ queryKey: ['feed'] });
     },
   });
+}
+
+/** One page of the feed, plus the actions the user already took (optimistic). */
+export interface FeedPage extends ListFeedProductsResponse {
+  /** Product id → the action the user just took. */
+  reacted?: Record<string, InteractionAction>;
 }
 
 /** Taste-ranked product feed, paged with the contract's keyset cursor. */
@@ -105,17 +116,46 @@ export function useFeedProducts(filters: FeedFilters) {
         'listFeedProducts',
         { query: { ...filters, cursor: pageParam ?? undefined } },
         { signal },
-      ),
+      ) as Promise<FeedPage>,
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.next_cursor,
   });
 }
 
-/** Logs a like/skip/love/save so the taste vector keeps learning from real use. */
+/**
+ * Logs a like/skip/love/save so the taste vector keeps learning from real use.
+ *
+ * The feed updates optimistically: the card shows the action straight away and the previous
+ * state is restored if the API rejects it.
+ */
 export function useRecordInteraction() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: RecordInteractionRequest) => api('recordInteraction', { body }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['me'] }),
+    onMutate: async (body) => {
+      if (body.target_type !== 'product') return;
+      await qc.cancelQueries({ queryKey: ['feed'] });
+      const previous = qc.getQueriesData<InfiniteData<FeedPage>>({ queryKey: ['feed'] });
+      qc.setQueriesData<InfiniteData<FeedPage>>({ queryKey: ['feed'] }, (data) => {
+        if (!data) return data;
+        return {
+          ...data,
+          pages: data.pages.map((page) => ({
+            ...page,
+            reacted: { ...page.reacted, [body.target_id]: body.action },
+          })),
+        };
+      });
+      return { previous };
+    },
+    onError: (_error, _body, context) => {
+      for (const [key, value] of context?.previous ?? []) qc.setQueryData(key, value);
+    },
+    onSuccess: (_data, body) => {
+      if (body.target_type === 'product') {
+        track('product_action', { action: body.action, product_id: body.target_id });
+      }
+      void qc.invalidateQueries({ queryKey: ['me'] });
+    },
   });
 }

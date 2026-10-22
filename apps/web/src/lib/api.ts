@@ -123,4 +123,6 @@ export function createApiClient({
 export const api = createApiClient({
   baseUrl: env.VITE_API_URL.replace(/\/$/, ''),
   getAccessToken: async () => (await supabase.auth.getSession()).data.session?.access_token ?? null,
+  // The global is looked up per call, so a test double (MSW) can patch it.
+  fetch: (...args) => fetch(...args),
 });

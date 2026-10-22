@@ -4,13 +4,14 @@ Turns images and text into **768-dim vectors** in one shared space (Marqo-Fashio
 them into Postgres (`halfvec(768)` columns). It runs **offline, in batches**, never per request: live
 requests only query the vectors this job has already stored (see ADR 0002).
 
-Owner: **Member 2** (data & catalog). Status: **scaffold** (commands exist, implementations land in Phase 2).
+Owner: **Member 2** (data & catalog). Status: **implemented** (Phase 2) - the commands below fill the
+vectors; the catalog itself still needs an approved affiliate feed (see `apps/api/src/jobs/ingest`).
 
 ## What it fills
 
 | Command | Reads | Writes |
 |---|---|---|
-| `embed-products` | `products.image_url` | `products.embedding` |
+| `embed-products` | `products.image_url` | `products.embedding`, `products.embedded_at` |
 | `embed-reference-looks` | local manifest of reference images per archetype (images are **not** stored) | `reference_looks` rows |
 | `compute-centroids` | `reference_looks.embedding` | `archetypes.centroid` |
 | `embed-wardrobe` | `wardrobe_items.image_path` (private bucket, signed URLs) | `wardrobe_items.embedding` |
@@ -51,11 +52,20 @@ Environment (reads the repo-root `.env` or the notebook's env):
 ```bash
 python -m embedder --help
 python -m embedder embed-products --dry-run --limit 30
+python -m embedder embed-reference-looks --manifest looks/manifest.json
 python -m embedder compute-centroids
+python -m embedder embed-venues
 ```
 
-Every command supports `--limit`, `--batch-size`, `--all` (re-embed rows that already have a vector) and
-`--dry-run`. Scaffold commands print their plan and exit with code **3**.
+Every command supports `--limit`, `--batch-size`, `--all` (re-embed rows that already have a vector)
+and `--dry-run` (plan only, nothing is written). Exit codes: `0` ok, `1` runtime failure,
+`2` bad arguments or missing configuration.
+
+`embed-products` is **resumable**: it only picks up products whose `embedding` is still null, so
+re-running continues where the last batch stopped. `embed-reference-looks` reads the manifest in
+`looks/` (see `looks/README.md`); the images stay out of git.
+
+`notebooks/colab_embed.ipynb` runs the whole batch on a free Colab T4 GPU.
 
 ## Rules
 

@@ -4,14 +4,16 @@ import {
   type RankedProduct,
   type Slot,
 } from '@dafitmatch/shared';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { Chip } from '@/components/Chip';
 import { FullPageMessage } from '@/components/ComingSoon';
+import { LoadMore } from '@/components/LoadMore';
 import { MeCard } from '@/components/MeCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useFeedProducts, useMe, useRecordInteraction } from '@/lib/queries';
+import { track } from '@/lib/analytics';
 import { FEED_SLOTS } from '@/lib/styleOptions';
 
 const ACTIONS: { action: InteractionAction; label: string }[] = [
@@ -20,12 +22,25 @@ const ACTIONS: { action: InteractionAction; label: string }[] = [
   { action: 'skip', label: 'Skip' },
 ];
 
+const REACTION_LABELS: Record<InteractionAction, string> = {
+  love: 'Loved',
+  like: 'Liked',
+  save: 'Saved',
+  skip: 'Skipped',
+  click: 'Opened',
+  tryon: 'Tried on',
+  swap: 'Swapped',
+};
+
 function ProductCard({
   item,
   onAction,
+  reaction,
 }: {
   item: RankedProduct;
   onAction: (action: InteractionAction) => void;
+  /** The action already taken on this product (optimistic). */
+  reaction?: InteractionAction;
 }) {
   const { product, reason_tags } = item;
   return (
@@ -40,12 +55,23 @@ function ProductCard({
         <p className="text-xs tracking-wide text-muted-foreground uppercase">{product.brand}</p>
         <p className="text-sm font-medium">{product.title}</p>
         <p className="text-sm">₹{product.price_inr.toLocaleString('en-IN')}</p>
+        {reaction && (
+          <p className="text-xs font-medium text-primary" data-testid="reaction">
+            {REACTION_LABELS[reaction]}
+          </p>
+        )}
         {reason_tags.length > 0 && (
           <p className="text-xs text-muted-foreground">{reason_tags.join(' · ')}</p>
         )}
         <div className="flex flex-wrap gap-2 pt-1">
           {ACTIONS.map(({ action, label }) => (
-            <Button key={action} size="sm" variant="outline" onClick={() => onAction(action)}>
+            <Button
+              key={action}
+              size="sm"
+              variant="outline"
+              disabled={reaction !== undefined}
+              onClick={() => onAction(action)}
+            >
               {label}
             </Button>
           ))}
@@ -73,7 +99,18 @@ export function FeedPage() {
   const record = useRecordInteraction();
 
   const products = feed.data?.pages.flatMap((p) => p.products) ?? [];
+  const reactions = useMemo(() => {
+    const map = new Map<string, InteractionAction>();
+    for (const page of feed.data?.pages ?? []) {
+      for (const [id, action] of Object.entries(page.reacted ?? {})) map.set(id, action);
+    }
+    return map;
+  }, [feed.data]);
   const isEmpty = !feed.isPending && !feed.isError && products.length === 0;
+
+  useEffect(() => {
+    track('feed_viewed', { slot: slot ?? 'all' });
+  }, [slot]);
 
   return (
     <div className="grid gap-4">
@@ -121,6 +158,7 @@ export function FeedPage() {
           <ProductCard
             key={item.product.id}
             item={item}
+            reaction={reactions.get(item.product.id)}
             onAction={(action) =>
               record.mutate({
                 target_type: 'product',
@@ -132,17 +170,14 @@ export function FeedPage() {
         ))}
       </div>
 
-      {feed.hasNextPage && (
-        <div>
-          <Button
-            variant="outline"
-            disabled={feed.isFetchingNextPage}
-            onClick={() => feed.fetchNextPage()}
-          >
-            {feed.isFetchingNextPage ? 'Loading…' : 'Load more'}
-          </Button>
-        </div>
-      )}
+      <LoadMore
+        hasMore={feed.hasNextPage}
+        isLoading={feed.isFetchingNextPage}
+        onLoadMore={() => {
+          track('feed_load_more');
+          void feed.fetchNextPage();
+        }}
+      />
 
       <MeCard />
     </div>

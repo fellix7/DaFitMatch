@@ -11,15 +11,23 @@ import {
   type QuizSwipeAction,
 } from '@dafitmatch/shared';
 import { Check } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Chip, ChipGroup } from '@/components/Chip';
 import { FullPageMessage } from '@/components/ComingSoon';
+import { SwipeDeck } from '@/components/SwipeDeck';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useQuizCards, useSubmitQuiz } from '@/lib/queries';
 import { COLOR_HEX, COMFORT_LABELS, QUIZ_CATALOG } from '@/lib/styleOptions';
+import {
+  clearSession,
+  emptySession,
+  readSession,
+  sessionKey,
+  writeSession,
+} from '@/lib/swipeSession';
 
 type Step = 'basics' | 'swipe' | 'rules' | 'result';
 
@@ -39,8 +47,6 @@ export function QuizPage() {
   const [budgetBand, setBudgetBand] = useState(BUDGET_OPTIONS[1]!.value);
   const [heightCm, setHeightCm] = useState<number | undefined>();
   const [fitPref, setFitPref] = useState<(typeof FIT_PREF_OPTIONS)[number] | undefined>();
-  const [index, setIndex] = useState(0);
-  const [swipes, setSwipes] = useState<QuizSwipe[]>([]);
   const [colorsLike, setColorsLike] = useState<ColorVocab[]>([]);
   const [colorsAvoid, setColorsAvoid] = useState<ColorVocab[]>([]);
   const [neverWear, setNeverWear] = useState<(typeof NEVER_WEAR_OPTIONS)[number][]>([]);
@@ -49,6 +55,28 @@ export function QuizPage() {
   const gender = QUIZ_CATALOG.find((c) => c.value === catalog)?.gender;
   const cardsQuery = useQuizCards(gender);
   const submit = useSubmitQuiz();
+
+  // The run is remembered per catalog section, so a reload does not restart the deck.
+  const storageKey = sessionKey(gender ?? 'all');
+  const [swipes, setSwipes] = useState<QuizSwipe[]>(
+    () => readSession(window.sessionStorage, storageKey)?.swipes ?? [],
+  );
+
+  useEffect(() => {
+    if (swipes.length === 0) return;
+    writeSession(window.sessionStorage, storageKey, {
+      ...emptySession(),
+      swipes,
+      index: swipes.length,
+    });
+  }, [storageKey, swipes]);
+
+  /** Switching section starts (or resumes) that section's own run. */
+  const changeCatalog = (value: QuizCatalog) => {
+    setCatalog(value);
+    const nextKey = sessionKey(QUIZ_CATALOG.find((c) => c.value === value)?.gender ?? 'all');
+    setSwipes(readSession(window.sessionStorage, nextKey)?.swipes ?? []);
+  };
 
   const go = (next: Step) => {
     setStepHistory((h) => [...h, step]);
@@ -63,13 +91,18 @@ export function QuizPage() {
   };
 
   const cards = (cardsQuery.data?.cards ?? []).slice(0, QUIZ_CARD_COUNT);
+  const index = swipes.length;
   const current = cards[index];
 
   const act = (action: QuizSwipeAction) => {
     if (!current) return;
     setSwipes((s) => [...s, { card_id: current.id, action }]);
-    if (index + 1 >= QUIZ_CARD_COUNT) go('rules');
-    else setIndex(index + 1);
+    if (swipes.length + 1 >= QUIZ_CARD_COUNT) go('rules');
+  };
+
+  const undo = () => {
+    setSwipes((s) => s.slice(0, -1));
+    if (step === 'rules') go('swipe');
   };
 
   const cycleColor = (name: ColorVocab) => {
@@ -101,7 +134,12 @@ export function QuizPage() {
           comfort_vs_statement: comfort,
         },
       },
-      { onSuccess: () => setStep('result') },
+      {
+        onSuccess: () => {
+          clearSession(window.sessionStorage, storageKey);
+          setStep('result');
+        },
+      },
     );
   };
 
@@ -119,11 +157,6 @@ export function QuizPage() {
           <Button variant="ghost" size="sm" onClick={back}>
             Back
           </Button>
-          {step === 'swipe' && (
-            <p className="text-sm text-muted-foreground" aria-live="polite">
-              {Math.min(index + 1, QUIZ_CARD_COUNT)} / {QUIZ_CARD_COUNT}
-            </p>
-          )}
         </div>
       )}
 
@@ -140,7 +173,7 @@ export function QuizPage() {
                 label="Catalog"
                 options={QUIZ_CATALOG.map((c) => ({ value: c.value, label: c.label }))}
                 value={catalog}
-                onChange={setCatalog}
+                onChange={changeCatalog}
               />
             </div>
             <div className="grid gap-2">
@@ -208,26 +241,14 @@ export function QuizPage() {
               </p>
             )}
             {current && (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  {current.image_urls.map((url, i) => (
-                    <img
-                      key={`${current.id}-${i}`}
-                      src={url}
-                      alt="Style option"
-                      loading="lazy"
-                      className="col-span-2 aspect-[3/4] w-full rounded-xl border object-cover sm:col-span-1"
-                    />
-                  ))}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" onClick={() => act('skip')}>
-                    Skip
-                  </Button>
-                  <Button onClick={() => act('like')}>Like</Button>
-                  <Button onClick={() => act('love')}>Love</Button>
-                </div>
-              </>
+              <SwipeDeck
+                cards={cards}
+                index={index}
+                total={QUIZ_CARD_COUNT}
+                onAction={act}
+                onUndo={undo}
+                canUndo={swipes.length > 0}
+              />
             )}
           </CardContent>
         </Card>

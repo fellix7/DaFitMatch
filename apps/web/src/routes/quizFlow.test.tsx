@@ -35,7 +35,11 @@ function renderQuiz() {
   return router;
 }
 
-beforeEach(() => mutate.mockReset());
+beforeEach(() => {
+  mutate.mockReset();
+  // The deck remembers its run in sessionStorage: start every test from a clean slate.
+  window.sessionStorage.clear();
+});
 
 describe('onboarding quiz', () => {
   it('walks basics -> swipe -> rules and submits 24 swipes with hard rules', () => {
@@ -66,9 +70,31 @@ describe('onboarding quiz', () => {
   it('progresses the card counter and only enables submit after all swipes', () => {
     renderQuiz();
     fireEvent.click(screen.getByRole('button', { name: 'Start swiping' }));
-    expect(screen.getByText(`1 / ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
+    expect(screen.getByText(`Card 1 of ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
-    expect(screen.getByText(`2 / ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
+    expect(screen.getByText(`Card 2 of ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
+  });
+
+  it('undoes the last swipe', () => {
+    renderQuiz();
+    fireEvent.click(screen.getByRole('button', { name: 'Start swiping' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Like' }));
+    expect(screen.getByText(`Card 2 of ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(screen.getByText(`Card 1 of ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
+  });
+
+  it('answers with the keyboard', () => {
+    renderQuiz();
+    fireEvent.click(screen.getByRole('button', { name: 'Start swiping' }));
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.getByText(`Card 2 of ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'ArrowUp' });
+    expect(screen.getByText(`Card 3 of ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(screen.getByText(`Card 4 of ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Backspace' });
+    expect(screen.getByText(`Card 3 of ${QUIZ_CARD_COUNT}`)).toBeInTheDocument();
   });
 
   it('joins colours from like -> avoid -> clear', () => {

@@ -155,6 +155,26 @@ export const NEVER_WEAR_OPTIONS = [
   'florals',
 ] as const;
 
+/**
+ * Words that mark a product as a "never wear" item. Mirrored by
+ * `private.never_wear_matches` in the phase-2 feed-rules migration; keep the two in sync.
+ * Matching is case-insensitive and substring-based on the product title + category.
+ */
+export const NEVER_WEAR_KEYWORDS: Readonly<Record<string, readonly string[]>> = {
+  'crop tops': ['crop top', 'cropped top', 'crop tee'],
+  shorts: ['shorts', 'short'],
+  'mini skirts': ['mini skirt', 'mini dress'],
+  sleeveless: ['sleeveless', 'tank top', 'tanktop'],
+  bodycon: ['bodycon', 'body con', 'body-hugging', 'body hugging'],
+  heels: ['heel', 'heels', 'stiletto', 'pumps'],
+  sneakers: ['sneaker', 'sneakers'],
+  'graphic tees': ['graphic tee', 'graphic t-shirt', 'printed tee', 'graphic tshirt'],
+  'ripped jeans': ['ripped', 'distressed', 'torn jean'],
+  'sheer fabrics': ['sheer', 'transparent'],
+  'loud prints': ['loud print', 'statement print', 'all-over print', 'bold print'],
+  florals: ['floral', 'flower print', 'botanical print'],
+};
+
 /** Fit preference options offered in the quiz (single choice, optional). */
 export const FIT_PREF_OPTIONS = ['slim', 'regular', 'relaxed', 'oversized', 'mixed'] as const;
 export type FitPrefOption = (typeof FIT_PREF_OPTIONS)[number];
@@ -171,3 +191,20 @@ export const TASTE_EMA_ALPHA = 0.1;
 
 /** Bump `taste_profiles.version` every this many interactions (full rebuild cadence). */
 export const TASTE_REBUILD_EVERY = 10;
+
+/**
+ * Target mix of the shopping catalog, by slot. The ingest job keeps the catalog close to this
+ * split so no slot dominates the feed (tops 25%, bottoms 20%, footwear 20%, layers 15%,
+ * one-pieces 10%, accessories 10%).
+ */
+export const CATALOG_SLOT_SHARE: Readonly<Record<Slot, number>> = {
+  top: 0.25,
+  bottom: 0.2,
+  footwear: 0.2,
+  layer: 0.15,
+  full: 0.1,
+  accessory: 0.1,
+};
+
+/** Rows written per upsert batch by the catalog ingest job. */
+export const INGEST_BATCH_SIZE = 500;

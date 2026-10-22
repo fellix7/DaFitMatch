@@ -22,6 +22,10 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 
+# reference-look images (curated style references, not ours to ship)
+workers/embedder/looks/images/
+workers/embedder/looks/manifest.json
+
 # editors / OS
 .DS_Store
 Thumbs.db

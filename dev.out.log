@@ -1,0 +1,237 @@
+
+   • turbo 2.11.5
+   • Packages in scope: @dafitmatch/api, @dafitmatch/shared, @dafitmatch/web
+   • Running dev in 3 packages
+   • Remote caching disabled
+
+@dafitmatch/api:dev: cache bypass, force executing 097ac1532602c98b
+@dafitmatch/web:dev: cache bypass, force executing c6f5071d234d5b88
+@dafitmatch/api:dev: $ tsx watch --clear-screen=false src/server.ts
+@dafitmatch/web:dev: $ vite
+@dafitmatch/web:dev: 
+@dafitmatch/web:dev:   [32m[1mVITE[22m v8.3.1[39m  [2mready in [0m[1m8902[22m[2m[0m ms[22m
+@dafitmatch/web:dev: 
+@dafitmatch/web:dev:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+@dafitmatch/web:dev: [2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+@dafitmatch/api:dev: [21:31:32] [32mINFO[39m (8228): [36mServer listening at http://127.0.0.1:8787[39m
+@dafitmatch/api:dev: [21:31:32] [32mINFO[39m (8228): [36mServer listening at http://192.168.1.9:8787[39m
+@dafitmatch/api:dev: [21:46:43] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-1"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/archetypes",
+@dafitmatch/api:dev:       "host": "localhost:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 59286
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:46:43] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-2"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/archetypes",
+@dafitmatch/api:dev:       "host": "localhost:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 53631
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:46:50] [31mERROR[39m (8228): [36mGET /archetypes failed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-1"
+@dafitmatch/api:dev:     err: {
+@dafitmatch/api:dev:       "type": "Object",
+@dafitmatch/api:dev:       "message": "TypeError: fetch failed",
+@dafitmatch/api:dev:       "stack":
+@dafitmatch/api:dev:           
+@dafitmatch/api:dev:       "details": "TypeError: fetch failed\n\nCaused by: Error: connect ECONNREFUSED 127.0.0.1:54321 (ECONNREFUSED)\nError: connect ECONNREFUSED 127.0.0.1:54321\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)",
+@dafitmatch/api:dev:       "hint": "",
+@dafitmatch/api:dev:       "code": ""
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:46:50] [31mERROR[39m (8228): [36mGET /archetypes failed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-2"
+@dafitmatch/api:dev:     err: {
+@dafitmatch/api:dev:       "type": "Object",
+@dafitmatch/api:dev:       "message": "TypeError: fetch failed",
+@dafitmatch/api:dev:       "stack":
+@dafitmatch/api:dev:           
+@dafitmatch/api:dev:       "details": "TypeError: fetch failed\n\nCaused by: Error: connect ECONNREFUSED 127.0.0.1:54321 (ECONNREFUSED)\nError: connect ECONNREFUSED 127.0.0.1:54321\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)",
+@dafitmatch/api:dev:       "hint": "",
+@dafitmatch/api:dev:       "code": ""
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:46:50] [32mINFO[39m (8228): [36mrequest completed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-2"
+@dafitmatch/api:dev:     [35mres[39m: {
+@dafitmatch/api:dev:       "statusCode": 500
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev:     [35mresponseTime[39m: 7082.854900000035
+@dafitmatch/api:dev: [21:46:51] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-3"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/archetypes",
+@dafitmatch/api:dev:       "host": "localhost:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 53631
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:46:58] [31mERROR[39m (8228): [36mGET /archetypes failed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-3"
+@dafitmatch/api:dev:     err: {
+@dafitmatch/api:dev:       "type": "Object",
+@dafitmatch/api:dev:       "message": "TypeError: fetch failed",
+@dafitmatch/api:dev:       "stack":
+@dafitmatch/api:dev:           
+@dafitmatch/api:dev:       "details": "TypeError: fetch failed\n\nCaused by: Error: connect ECONNREFUSED 127.0.0.1:54321 (ECONNREFUSED)\nError: connect ECONNREFUSED 127.0.0.1:54321\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)",
+@dafitmatch/api:dev:       "hint": "",
+@dafitmatch/api:dev:       "code": ""
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:46:58] [32mINFO[39m (8228): [36mrequest completed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-3"
+@dafitmatch/api:dev:     [35mres[39m: {
+@dafitmatch/api:dev:       "statusCode": 500
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev:     [35mresponseTime[39m: 7063.726999999955
+@dafitmatch/api:dev: [21:47:00] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-4"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/archetypes",
+@dafitmatch/api:dev:       "host": "localhost:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 53631
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:07] [31mERROR[39m (8228): [36mGET /archetypes failed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-4"
+@dafitmatch/api:dev:     err: {
+@dafitmatch/api:dev:       "type": "Object",
+@dafitmatch/api:dev:       "message": "TypeError: fetch failed",
+@dafitmatch/api:dev:       "stack":
+@dafitmatch/api:dev:           
+@dafitmatch/api:dev:       "details": "TypeError: fetch failed\n\nCaused by: Error: connect ECONNREFUSED 127.0.0.1:54321 (ECONNREFUSED)\nError: connect ECONNREFUSED 127.0.0.1:54321\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)",
+@dafitmatch/api:dev:       "hint": "",
+@dafitmatch/api:dev:       "code": ""
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:07] [32mINFO[39m (8228): [36mrequest completed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-4"
+@dafitmatch/api:dev:     [35mres[39m: {
+@dafitmatch/api:dev:       "statusCode": 500
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev:     [35mresponseTime[39m: 7040.246299999999
+@dafitmatch/api:dev: [21:47:15] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-5"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/",
+@dafitmatch/api:dev:       "host": "127.0.0.1:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 55735
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:15] [32mINFO[39m (8228): [36mrequest completed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-5"
+@dafitmatch/api:dev:     [35mres[39m: {
+@dafitmatch/api:dev:       "statusCode": 404
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev:     [35mresponseTime[39m: 1.2441999999573454
+@dafitmatch/api:dev: [21:47:15] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-6"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/favicon.ico",
+@dafitmatch/api:dev:       "host": "127.0.0.1:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 55735
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:15] [32mINFO[39m (8228): [36mrequest completed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-6"
+@dafitmatch/api:dev:     [35mres[39m: {
+@dafitmatch/api:dev:       "statusCode": 404
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev:     [35mresponseTime[39m: 9.741700000013225
+@dafitmatch/api:dev: [21:47:25] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-7"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/archetypes",
+@dafitmatch/api:dev:       "host": "localhost:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 49185
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:25] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-8"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/archetypes",
+@dafitmatch/api:dev:       "host": "localhost:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 58559
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:32] [31mERROR[39m (8228): [36mGET /archetypes failed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-7"
+@dafitmatch/api:dev:     err: {
+@dafitmatch/api:dev:       "type": "Object",
+@dafitmatch/api:dev:       "message": "TypeError: fetch failed",
+@dafitmatch/api:dev:       "stack":
+@dafitmatch/api:dev:           
+@dafitmatch/api:dev:       "details": "TypeError: fetch failed\n\nCaused by: Error: connect ECONNREFUSED 127.0.0.1:54321 (ECONNREFUSED)\nError: connect ECONNREFUSED 127.0.0.1:54321\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)",
+@dafitmatch/api:dev:       "hint": "",
+@dafitmatch/api:dev:       "code": ""
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:32] [31mERROR[39m (8228): [36mGET /archetypes failed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-8"
+@dafitmatch/api:dev:     err: {
+@dafitmatch/api:dev:       "type": "Object",
+@dafitmatch/api:dev:       "message": "TypeError: fetch failed",
+@dafitmatch/api:dev:       "stack":
+@dafitmatch/api:dev:           
+@dafitmatch/api:dev:       "details": "TypeError: fetch failed\n\nCaused by: Error: connect ECONNREFUSED 127.0.0.1:54321 (ECONNREFUSED)\nError: connect ECONNREFUSED 127.0.0.1:54321\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)",
+@dafitmatch/api:dev:       "hint": "",
+@dafitmatch/api:dev:       "code": ""
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:32] [32mINFO[39m (8228): [36mrequest completed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-8"
+@dafitmatch/api:dev:     [35mres[39m: {
+@dafitmatch/api:dev:       "statusCode": 500
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev:     [35mresponseTime[39m: 7025.17650000006
+@dafitmatch/api:dev: [21:47:33] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-9"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/archetypes",
+@dafitmatch/api:dev:       "host": "localhost:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 58559
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:40] [31mERROR[39m (8228): [36mGET /archetypes failed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-9"
+@dafitmatch/api:dev:     err: {
+@dafitmatch/api:dev:       "type": "Object",
+@dafitmatch/api:dev:       "message": "TypeError: fetch failed",
+@dafitmatch/api:dev:       "stack":
+@dafitmatch/api:dev:           
+@dafitmatch/api:dev:       "details": "TypeError: fetch failed\n\nCaused by: Error: connect ECONNREFUSED 127.0.0.1:54321 (ECONNREFUSED)\nError: connect ECONNREFUSED 127.0.0.1:54321\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)",
+@dafitmatch/api:dev:       "hint": "",
+@dafitmatch/api:dev:       "code": ""
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:40] [32mINFO[39m (8228): [36mrequest completed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-9"
+@dafitmatch/api:dev:     [35mres[39m: {
+@dafitmatch/api:dev:       "statusCode": 500
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev:     [35mresponseTime[39m: 7041.880400000024
+@dafitmatch/api:dev: [21:47:42] [32mINFO[39m (8228): [36mincoming request[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-a"
+@dafitmatch/api:dev:     [35mreq[39m: {
+@dafitmatch/api:dev:       "method": "GET",
+@dafitmatch/api:dev:       "url": "/archetypes",
+@dafitmatch/api:dev:       "host": "localhost:8787",
+@dafitmatch/api:dev:       "remoteAddress": "127.0.0.1",
+@dafitmatch/api:dev:       "remotePort": 58559
+@dafitmatch/api:dev:     }
+@dafitmatch/api:dev: [21:47:49] [31mERROR[39m (8228): [36mGET /archetypes failed[39m
+@dafitmatch/api:dev:     [35mreqId[39m: "req-a"
+@dafitmatch/api:dev:     err: {
+@dafitmatch/api:dev:       "type": "Object",
+@dafitmatch/api:dev:       "message": "TypeError: fetch failed",
+@dafitmatch/api:dev:       "stack":
+@dafitmatch/api:dev:           
+@dafitmatch/api:dev:       "details": "TypeError: fetch failed\n\nCaused by: Error: connect ECONNREFUSED 127.0.0.1:54321 (ECONNREFUSED)\nError: connect ECONNREFUSED 127.0.0.1:54321\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)",
+@dafitmatch/api:dev:       "hint": "",
+@dafitmatch/api:dev:       "code": ""
+@dafitmatch/api:dev:     }

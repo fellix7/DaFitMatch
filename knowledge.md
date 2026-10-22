@@ -44,7 +44,7 @@ they press **Generate fit**; their answers are then saved to their profile.
 | Contracts | zod in `packages/shared` (single source of truth for every request/response) |
 | LLM | Vercel AI SDK (`ai`) in the API only, `generateObject` with zod schemas |
 | External | fal (try-on), Google Places (New), SerpApi — API only |
-| Tests | Vitest, `fastify.inject`, pgTAP (`supabase test db`), Playwright later |
+| Tests | Vitest, `fastify.inject`, pgTAP (`supabase test db`), Playwright e2e (`pnpm e2e`) |
 
 ## 3. Commands
 
@@ -53,6 +53,7 @@ pnpm i                       # install everything
 pnpm dev                     # web (5173) + api (8787) together via Turborepo
 pnpm --filter @dafitmatch/api dev:worker   # pg-boss worker
 pnpm test                    # all unit + API tests
+pnpm e2e                     # Playwright web flows (mocks the API, no live project needed)
 pnpm lint                    # ESLint
 pnpm typecheck               # tsc in every package
 pnpm format                  # Prettier
@@ -61,6 +62,17 @@ pnpm db:reset                # fresh local DB: all migrations + seed
 pnpm db:test                 # pgTAP RLS/schema tests against the local DB
 pnpm db:types                # regenerate packages/shared/src/db.types.ts from the local DB
 pnpm --filter @dafitmatch/shared db:types:remote   # same, from the hosted dev project
+```
+
+Catalog pipeline (offline batch jobs, never per request):
+
+```bash
+pnpm --filter @dafitmatch/api ingest -- --source csv --file path/to/products.csv
+pnpm --filter @dafitmatch/api tag:products      # LLM tags
+pnpm --filter @dafitmatch/api quiz:cards        # onboarding quiz cards
+pnpm --filter @dafitmatch/api catalog:report    # coverage + quality report
+pnpm --filter @dafitmatch/api bench:feed        # feed latency + EXPLAIN plan
+python -m embedder embed-products               # workers/embedder (see its README)
 ```
 
 ## 4. Folder ownership
@@ -92,7 +104,8 @@ Touching someone else's folder: open the PR and request their review.
 4. **Schema changes only via new migration files** in `supabase/migrations`. Never edit an applied migration.
 5. **Only one open PR may add a migration at a time.** After it merges: apply it, then `pnpm db:types`
    and commit the regenerated types.
-6. Run `pnpm lint && pnpm typecheck && pnpm test` (and `pnpm db:test` for DB changes) before asking for review.
+6. Run `pnpm lint && pnpm typecheck && pnpm test` before asking for review (add `pnpm e2e` for web
+   changes and `pnpm db:test` for DB changes).
 7. Scoring logic (palette rules, budget split, pair scoring) is **test-first**: implement against
    human-written test cases, never the other way round.
 
