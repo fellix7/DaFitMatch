@@ -11,10 +11,6 @@ const valid: Partial<Record<EndpointName, { url: string; payload?: object }>> = 
     payload: { occasion: 'dinner', budget_inr: 5000, gender: 'women' },
   },
   getOutfit: { url: `/outfits/${ID}` },
-  listWardrobe: { url: '/wardrobe' },
-  addWardrobeItem: { url: '/wardrobe', payload: { slot: 'top', category: 'shirt' } },
-  updateWardrobeItem: { url: `/wardrobe/${ID}`, payload: { title: 'Linen shirt' } },
-  deleteWardrobeItem: { url: `/wardrobe/${ID}` },
   createRoom: { url: '/rooms', payload: { coordination_mode: 'matching', occasion: 'brunch' } },
   joinRoom: { url: '/rooms/join', payload: { invite_code: 'AB12CD34' } },
   getRoom: { url: `/rooms/${ID}` },
@@ -39,6 +35,10 @@ const stubbed = (Object.keys(endpoints) as EndpointName[]).filter(
       'submitQuiz',
       'listFeedProducts',
       'recordInteraction',
+      'listWardrobe',
+      'addWardrobeItem',
+      'updateWardrobeItem',
+      'deleteWardrobeItem',
     ].includes(n),
 );
 
